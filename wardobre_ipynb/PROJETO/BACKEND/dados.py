@@ -1,11 +1,10 @@
 # dataset_preparacao.py
 
-from datasets import load_dataset
-from PIL import Image
+from datasets import load_dataset       
 import numpy as np
 import torch
 from clima import obter_dados_clima, criar_dataframes, processar_dados_horarios 
-import sys
+
 
 # Tamanho fixo para redimensionamento da imagem
 IMG_SIZE = (32, 32)
