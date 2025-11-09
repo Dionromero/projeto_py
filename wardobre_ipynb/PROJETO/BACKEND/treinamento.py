@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-from dataset_preparacao import preparar_dados_combinados
+from dados import preparar_dados_combinados
 
 # --- 1. Definição do Modelo de Rede Neural ---
 

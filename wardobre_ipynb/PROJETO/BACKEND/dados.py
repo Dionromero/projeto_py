@@ -4,8 +4,7 @@ from datasets import load_dataset
 from PIL import Image
 import numpy as np
 import torch
-# Importa as funções do arquivo clima_api.py
-from PROJETO.BACKEND.clima import obter_dados_clima, criar_dataframes, processar_dados_horarios 
+from clima import obter_dados_clima, criar_dataframes, processar_dados_horarios 
 import sys
 
 # Tamanho fixo para redimensionamento da imagem
