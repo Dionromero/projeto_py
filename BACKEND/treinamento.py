@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-import json
 from dados import preparar_dados_combinados
 from datasets import load_dataset
 from imagem import imagem_para_json  
@@ -35,12 +34,12 @@ def mostrar_imagem_no_terminal(item_dataset, index, classes):
     img_json = imagem_para_json(img_pil)
 
     print("\n" + "=" * 60)
-    print(f"👁️  AMOSTRA VISUALIZADA (Índice: {index})")
-    print(f"🎽  Classe Original: {classes.get(item_dataset[index]['label'], 'Desconhecida')}")
+    print(f"AMOSTRA VISUALIZADA (Índice: {index})")
+    print(f"Classe Original: {classes.get(item_dataset[index]['label'], 'Desconhecida')}")
     print("=" * 60)
 
     # Exibe apenas uma prévia do JSON pra não poluir o terminal
-    print("📦 Imagem em JSON (base64):")
+    print("Imagem em JSON (base64):")
     print(img_json[:250] + " ...")   # preview de 250 chars
     print("=" * 60 + "\n")
 
