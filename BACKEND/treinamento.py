@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-import json
 from dados import preparar_dados_combinados
 from datasets import load_dataset
 from imagem import imagem_para_json  
