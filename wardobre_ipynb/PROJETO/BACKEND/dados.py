@@ -4,6 +4,7 @@ from datasets import load_dataset
 import numpy as np
 import torch
 from clima import obter_dados_clima, criar_dataframes, processar_dados_horarios 
+from imagem import imagem_para_json
 
 
 # Tamanho fixo para redimensionamento da imagem
@@ -11,14 +12,22 @@ IMG_SIZE = (32, 32)
 IMG_FLAT_DIM = IMG_SIZE[0] * IMG_SIZE[1] * 3 
 
 def extract_features(item):
-    """Redimensiona, normaliza e achata a imagem."""
+    """Redimensiona, normaliza, achata a imagem e gera JSON."""
     try:
         img = item['image'].resize(IMG_SIZE)
+
+        # transforma imagem em JSON
+        img_json = imagem_para_json(img)
+
+        # Features numéricas (se você ainda quiser usar)
         features = np.array(img, dtype=np.float32).flatten() / 255.0
-        return features, item['label']
+
+        # Agora retorna também o JSON
+        return features, item['label'], img_json
+
     except Exception as e:
         print(f"Erro ao processar item: {e}")
-        return None, None
+        return None, None, None
 
 def preparar_dados_combinados(local_clima="Curitiba"):
     """
@@ -41,9 +50,10 @@ def preparar_dados_combinados(local_clima="Curitiba"):
     df_train = dataset['train']
 
     processados = [extract_features(df_train[i]) for i in range(len(df_train))]
-    processados = [p for p in processados if p[0] is not None] 
-    
-    X_list_img, Y_list = zip(*processados)
+    processados = [p for p in processados if p[0] is not None]
+
+    X_list_img, Y_list, JSON_list = zip(*processados)
+
 
     X_img = torch.tensor(np.array(X_list_img), dtype=torch.float32)
     Y = torch.tensor(np.array(Y_list), dtype=torch.long)

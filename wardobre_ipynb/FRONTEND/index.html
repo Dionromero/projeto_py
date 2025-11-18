@@ -1,0 +1,87 @@
+<!-- Guarda-Roupa Inteligente - Versão HTML/CSS/JS pura -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guarda-Roupa Inteligente</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-box">
+        <img src="FRONTEND/logo.png" alt="Logo" class="logo-img" />
+        <h1>Guarda-Roupa Inteligente</h1>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnRegister">+ Cadastrar Roupas</button>
+        <button id="btnClimate">Clima</button>
+      </div>
+    </header>
+
+    <!-- Layout Grid -->
+    <main class="layout">
+      <!-- Left Column -->
+      <aside class="card side-card">
+        <h3>Ações Rápidas</h3>
+        <ul>
+          <li>• Importar itens (CSV)</li>
+          <li>• Organizar por categoria</li>
+          <li>• Favoritar roupas</li>
+          <li>• Filtrar por cor / tecido</li>
+        </ul>
+      </aside>
+
+      <!-- Central Carousel -->
+      <section class="card center-card">
+        <p class="title-mini">Sugestões baseadas no clima atual</p>
+        <h2>O que vestir hoje?</h2>
+
+        <div id="carouselContainer"></div>
+      </section>
+
+      <!-- Right Column -->
+      <aside class="card weather-card">
+        <h3>Clima Atual</h3>
+        <p>Curitiba, PR • 22 °C • Nublado</p>
+        <p class="recommend">Recomendação: Camisa leve + calça jeans</p>
+        <small>Atualizado: há 12 minutos</small>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      © 2025 Guarda-Roupa Inteligente — todos os direitos reservados
+    </footer>
+  </div>
+
+  <!-- Modal Cadastro -->
+  <div id="modalRegister" class="modal hidden">
+    <div class="modal-box">
+      <h3>Cadastrar peça</h3>
+      <form>
+        <label>Nome</label>
+        <input placeholder="Camisa Jeans" />
+
+        <label>Categoria</label>
+        <select>
+          <option>Camisa</option>
+          <option>Calça</option>
+          <option>Chapéu</option>
+        </select>
+
+        <label>Imagem (URL)</label>
+        <input placeholder="https://..." />
+
+        <button type="button" id="closeRegister" class="btn cancel">Cancelar</button>
+        <button class="btn save">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
