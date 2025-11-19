@@ -41,3 +41,6 @@ def normalize_labels(example):
     return example
 
 dataset = dataset.map(normalize_labels)
+
+print(np.unique(dataset['train']['label']))
+print(np.unique(dataset['test']['label']))
