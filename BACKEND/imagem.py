@@ -9,7 +9,7 @@ from clima import processar_dados_horarios
 
 def carregar_transform():
     return transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((128, 128)),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
