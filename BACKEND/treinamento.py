@@ -4,9 +4,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from dados import preparar_datasets
-from modelo_b import ModeloVisaoClimaLite
+from modelo import ModeloVisaoClimaLite
 
-def treinar_b(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=True):
+def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=True):
     train_ds, test_ds, num_classes = preparar_datasets(local)
     clima_dim = len(train_ds.clima)
 
@@ -66,5 +66,5 @@ def treinar_b(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbon
             total += labels.size(0)
 
     acc = corretos / total if total > 0 else 0.0
-    print(f"\n🎯 Acurácia no teste: {acc*100:.2f}%")
+    print(f"\n Acurácia no teste: {acc*100:.2f}%")
     return modelo

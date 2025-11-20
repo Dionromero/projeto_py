@@ -57,5 +57,5 @@ def processar_dados_horarios(df_forecast):
 
         return np.array([temp, hum, rain], dtype=np.float32)
 
-    except:
+    except:  # noqa: E722
         return np.array([0.5, 0.5, 0.1], dtype=np.float32)

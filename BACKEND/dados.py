@@ -3,7 +3,7 @@ from datasets import load_dataset
 from torchvision import transforms
 from torch.utils.data import Dataset
 import torch
-import numpy as np
+import numpy as np  # noqa: F401
 from clima_api import obter_dados_clima, criar_dataframes, processar_dados_horarios
 
 IMG_SIZE = (128, 128)

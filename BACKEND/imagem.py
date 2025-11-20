@@ -2,8 +2,10 @@
 import torch
 from PIL import Image
 from torchvision import transforms
-import base64, json, io
-from modelo_b import ModeloVisaoClimaLite
+import base64
+import json
+import io
+from modelo import ModeloVisaoClimaLite
 from dados import preparar_datasets
 
 def carregar_transform():
