@@ -1,4 +1,4 @@
-# main_b.py — versão completa com menu, treino rápido, fine-tune e predição
+
 import torch
 import os
 from treinamento import treinar

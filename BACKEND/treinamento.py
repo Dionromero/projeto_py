@@ -1,4 +1,4 @@
-# treinamento_b.py - treino otimizado (MobileNetV2, AMP, DataLoader otimizado)
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
