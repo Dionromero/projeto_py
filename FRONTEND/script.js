@@ -1,44 +1,55 @@
-const fileInput = document.getElementById("fileInput");
-const preview = document.getElementById("preview");
-const btnEnviar = document.getElementById("btnEnviar");
-const resultado = document.getElementById("resultado");
+const btn = document.getElementById("btnConsultar");
+const texto = document.getElementById("resultadoTexto");
 
-let imagemBase64 = null;
+// Função para carregar a tabela climática
+async function carregarClima() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/clima"); // sua rota do backend
+        if (!response.ok) throw new Error("Erro ao buscar dados do clima");
 
-// Mostrar preview ao selecionar arquivo
-fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+        const dados = await response.json();
+        const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
 
-    const reader = new FileReader();
-    reader.onload = () => {
-        imagemBase64 = reader.result.split(",")[1]; // remove prefixo data:image/png...
-        preview.src = reader.result;
-        preview.style.display = "block";
-    };
-    reader.readAsDataURL(file);
+        // Limpa tabela
+        tabela.innerHTML = "";
+
+        // Filtra horários de 5 em 5 horas
+        dados.forEach(item => {
+            const hora = new Date(item.timestamp).getHours();
+            if (hora % 5 === 0) {
+                const row = tabela.insertRow();
+                row.insertCell(0).innerText = `${hora}:00`;
+                row.insertCell(1).innerText = item.temperatura.toFixed(1);
+                row.insertCell(2).innerText = item.umidade;
+                row.insertCell(3).innerText = item.condicao;
+            }
+        });
+
+    } catch (erro) {
+        console.error(erro);
+        const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
+        tabela.innerHTML = `<tr><td colspan="4">❌ Erro ao carregar dados do clima</td></tr>`;
+    }
+}
+
+// Evento do botão de recomendação
+btn.addEventListener("click", async () => {
+    texto.innerText = "⏳ Consultando modelo...";
+
+    try {
+        const resp = await fetch("http://127.0.0.1:5000/recomendar");
+        const data = await resp.json();
+
+        texto.innerText = `👕 Recomendação da IA: classe ${data.recomendacao}`;
+
+        // Depois de mostrar a recomendação, carrega a tabela climática
+        await carregarClima();
+
+    } catch (erro) {
+        texto.innerText = "❌ Erro ao consultar o servidor. Verifique se o backend está rodando.";
+        console.error(erro);
+    }
 });
 
-// Enviar para backend
-btnEnviar.addEventListener("click", async () => {
-    if (!imagemBase64) {
-        alert("Escolha uma imagem primeiro!");
-        return;
-    }
-
-    resultado.innerText = "🔮 Processando...";
-
-    const resp = await fetch("http://localhost:5000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_base64: imagemBase64 })
-    });
-
-    const data = await resp.json();
-
-    if (data.error) {
-        resultado.innerText = "❌ Erro: " + data.error;
-    } else {
-        resultado.innerText = "👕 Classe prevista: " + data.classe;
-    }
-});
+// Atualiza a tabela climática a cada 5 minutos automaticamente
+setInterval(carregarClima, 5 * 60 * 1000);

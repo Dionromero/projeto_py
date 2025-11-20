@@ -2,23 +2,125 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Wardrobe AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe AI – Recomendação e Clima</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #030303;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitulo {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000;
+        }
+        button {
+            display: block;
+            margin: 0 auto 30px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .resultado {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Wardrobe Classifier</h1>
+    <main class="container">
+        <h1>👗 FASHION SWAG</h1>
+        <p class="subtitulo">Recomendação automática baseada no clima de hoje</p>
 
-    <div id="box">
-        <input type="file" id="fileInput" accept="image/*">
+        <button id="btnConsultar">Obter recomendação</button>
 
-        <img id="preview" style="display:none; width:200px; margin-top:10px;">
+        <div id="resultadoBox" class="resultado">
+            <h2>Resultado:</h2>
+            <p id="resultadoTexto">Clique no botão para consultar.</p>
+        </div>
 
-        <button id="btnEnviar">Enviar para IA</button>
+        <!-- Tabela climática logo abaixo do resultado -->
+        <section id="climaSection">
+            <h2>🌤️ Tabela Climática do Dia</h2>
+            <table id="tabelaClima">
+                <thead>
+                    <tr>
+                        <th>Horário</th>
+                        <th>Temperatura (°C)</th>
+                        <th>Umidade (%)</th>
+                        <th>Condição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4">Carregando dados...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
 
-        <p id="resultado"></p>
-    </div>
+    <script>
+        async function carregarClima() {
+            try {
+                const response = await fetch('/api/clima'); // rota do backend
+                if (!response.ok) throw new Error('Erro ao buscar dados do clima');
 
-    <script src="script.js"></script>
+                const dados = await response.json();
+                const tabela = document.getElementById('tabelaClima').getElementsByTagName('tbody')[0];
+
+                // Limpa tabela
+                tabela.innerHTML = '';
+
+                // Filtra horários de 5 em 5 horas
+                dados.forEach(item => {
+                    const hora = new Date(item.timestamp).getHours();
+                    if (hora % 5 === 0) {
+                        const row = tabela.insertRow();
+                        row.insertCell(0).innerText = `${hora}:00`;
+                        row.insertCell(1).innerText = item.temperatura.toFixed(1);
+                        row.insertCell(2).innerText = item.umidade;
+                        row.insertCell(3).innerText = item.condicao;
+                    }
+                });
+
+            } catch (error) {
+                console.error(error);
+                const tabela = document.getElementById('tabelaClima').getElementsByTagName('tbody')[0];
+                tabela.innerHTML = `<tr><td colspan="4">Erro ao carregar dados do clima</td></tr>`;
+            }
+        }
+
+        // Carrega tabela ao iniciar
+        carregarClima();
+
+        // Atualiza a cada 5 minutos
+        setInterval(carregarClima, 5 * 60 * 1000);
+    </script>
 </body>
 </html>
