@@ -55,8 +55,8 @@ def processar_dados_horarios(df_forecast):
     # Retorna vetor padrão se falhar
     if df_forecast is None or 'hour' not in df_forecast.columns or len(df_forecast) == 0:
         return np.array([20.0/40.0, 70.0/100.0, 10.0/100.0], dtype=np.float32) 
-    
-    # Seu código começa aqui:
+  
+  
     hour_list = df_forecast['hour'].iloc[0]
     df_hour = pd.json_normalize(hour_list)
     df_hour["time"] = pd.to_datetime(df_hour["time"])

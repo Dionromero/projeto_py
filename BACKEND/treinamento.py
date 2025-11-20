@@ -33,8 +33,8 @@ def treinar(local="Curitiba", epochs=10):
     train_ds, test_ds, num_classes = preparar_datasets(local)
 
     clima_dim = len(train_ds.clima)
-    train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)
-    test_loader = DataLoader(test_ds, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_ds, batch_size=64, shuffle=True)
+    test_loader = DataLoader(test_ds, batch_size=64, shuffle=False)
 
     modelo = ModeloVisaoClima(num_classes, clima_dim)
     device = "cuda" if torch.cuda.is_available() else "cpu"
