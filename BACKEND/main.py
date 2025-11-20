@@ -5,7 +5,7 @@ from treinamento import treinar
 from clima import processar_dados_horarios
 from dados import preparar_datasets
 from imagem import predizer_imagem
-#from predict import predizer_imagem
+
 
 1
 MODELO_PATH = "modelo_final.pth"

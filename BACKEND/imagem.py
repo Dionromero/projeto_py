@@ -7,7 +7,6 @@ from PIL import Image
 from dados import preparar_datasets
 from clima import processar_dados_horarios
 
-
 def carregar_transform():
     return transforms.Compose([
         transforms.Resize((224, 224)),
@@ -55,3 +54,4 @@ def imagem_para_json(pil_image):
     return json.dumps({
         "image_base64": img_b64
     })
+
