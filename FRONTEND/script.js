@@ -1,52 +1,44 @@
-// Clothing sample data
-const data = {
-  hat: [
-    { name: "Boné Colorido", img: "https://via.placeholder.com/260x260?text=Cap+1" },
-    { name: "Gorro", img: "https://via.placeholder.com/260x260?text=Hat+2" }
-  ],
-  shirt: [
-    { name: "Camisa Jeans", img: "https://via.placeholder.com/260x260?text=Shirt+1" },
-    { name: "Camiseta Branca", img: "https://via.placeholder.com/260x260?text=Shirt+2" }
-  ],
-  pants: [
-    { name: "Calça Jeans", img: "https://via.placeholder.com/260x260?text=Pants+1" },
-    { name: "Bermuda", img: "https://via.placeholder.com/260x260?text=Pants+2" }
-  ]
-};
+const fileInput = document.getElementById("fileInput");
+const preview = document.getElementById("preview");
+const btnEnviar = document.getElementById("btnEnviar");
+const resultado = document.getElementById("resultado");
 
-let index = { hat: 0, shirt: 0, pants: 0 };
+let imagemBase64 = null;
 
-const container = document.getElementById("carouselContainer");
+// Mostrar preview ao selecionar arquivo
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
 
-function render() {
-  container.innerHTML = "";
-  
-  Object.keys(data).forEach(key => {
-    const item = data[key][index[key]];
+    const reader = new FileReader();
+    reader.onload = () => {
+        imagemBase64 = reader.result.split(",")[1]; // remove prefixo data:image/png...
+        preview.src = reader.result;
+        preview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+});
 
-    const block = document.createElement("div");
-    block.className = "carousel-item";
-    block.innerHTML = `
-      <div class="arrow left" onclick="change('${key}', -1)">‹</div>
-      <img src="${item.img}" alt="${item.name}">
-      <p><b>${item.name}</b></p>
-      <p class="mini-text">Sugestão: clima leve</p>
-      <div class="arrow right" onclick="change('${key}', 1)">›</div>
-    `;
+// Enviar para backend
+btnEnviar.addEventListener("click", async () => {
+    if (!imagemBase64) {
+        alert("Escolha uma imagem primeiro!");
+        return;
+    }
 
-    container.appendChild(block);
-  });
-}
+    resultado.innerText = "🔮 Processando...";
 
-function change(category, step) {
-  const max = data[category].length;
-  index[category] = (index[category] + step + max) % max;
-  render();
-}
+    const resp = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_base64: imagemBase64 })
+    });
 
-render();
+    const data = await resp.json();
 
-// Modal
-const modal = document.getElementById("modalRegister");
-document.getElementById("btnRegister").onclick = () => modal.classList.remove("hidden");
-document.getElementById("closeRegister").onclick = () => modal.classList.add("hidden");
+    if (data.error) {
+        resultado.innerText = "❌ Erro: " + data.error;
+    } else {
+        resultado.innerText = "👕 Classe prevista: " + data.classe;
+    }
+});
