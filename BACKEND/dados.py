@@ -1,4 +1,4 @@
-# dados.py (forma B - leve)
+
 from datasets import load_dataset
 from torchvision import transforms
 from torch.utils.data import Dataset

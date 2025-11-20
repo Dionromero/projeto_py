@@ -1,4 +1,4 @@
-# modelo_b.py - MobileNetV2 leve + cabeça para clima
+
 import torch
 import torch.nn as nn
 from torchvision.models import mobilenet_v2

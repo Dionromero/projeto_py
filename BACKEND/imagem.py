@@ -1,4 +1,4 @@
-# imagem.py - predição (aceita caminho para arquivo de imagem)
+
 import torch
 from PIL import Image
 from torchvision import transforms
