@@ -1,4 +1,3 @@
-
 import pandas as pd
 import requests
 import numpy as np
@@ -59,3 +58,23 @@ def processar_dados_horarios(df_forecast):
 
     except:  # noqa: E722
         return np.array([0.5, 0.5, 0.1], dtype=np.float32)
+
+def processar_dados_para_tabela(dados):
+    """Extrai e formata dados de previsão horária para o frontend."""
+    if not dados or "forecast" not in dados:
+        return []
+
+    try:
+        hour_list = dados["forecast"]["forecastday"][0]["hour"]
+        # Filtra e formata os dados necessários
+        tabela_dados = []
+        for hora in hour_list:
+            tabela_dados.append({
+                "timestamp": hora["time"],
+                "temperatura": hora["temp_c"],
+                "umidade": hora["humidity"],
+                "condicao": hora["condition"]["text"],
+            })
+        return tabela_dados
+    except Exception:
+        return []
