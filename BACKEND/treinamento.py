@@ -1,62 +1,51 @@
-
+# treinamento_b.py - treino otimizado (MobileNetV2, AMP, DataLoader otimizado)
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision.models import resnet18
 from dados import preparar_datasets
+from modelo import ModeloVisaoClimaLite
 
-
-class ModeloVisaoClima(nn.Module):
-    def __init__(self, num_classes, clima_dim):
-        super().__init__()
-        
-        # modelo pré-treinado (remove camada final)
-        self.backbone = resnet18(weights="IMAGENET1K_V1")
-        self.backbone.fc = nn.Identity()
-        
-        # nova cabeça combinando visão + clima
-        self.fc = nn.Sequential(
-            nn.Linear(512 + clima_dim, 256),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(256, num_classes)
-        )
-
-    def forward(self, img, clima):
-        feat_img = self.backbone(img)
-        combined = torch.cat([feat_img, clima], dim=1)
-        return self.fc(combined)
-
-
-def treinar(local="Curitiba", epochs=10):
+def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=True):
     train_ds, test_ds, num_classes = preparar_datasets(local)
-
     clima_dim = len(train_ds.clima)
-    train_loader = DataLoader(train_ds, batch_size=64, shuffle=True)
-    test_loader = DataLoader(test_ds, batch_size=64, shuffle=False)
 
-    modelo = ModeloVisaoClima(num_classes, clima_dim)
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
+                              num_workers=4, pin_memory=True)
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
+                             num_workers=4, pin_memory=True)
+
+    modelo = ModeloVisaoClimaLite(num_classes, clima_dim, freeze_backbone=freeze_backbone)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     modelo.to(device)
 
-    ot = optim.Adam(modelo.parameters(), lr=1e-4)
-    loss_fn = nn.CrossEntropyLoss()
+    criterio = nn.CrossEntropyLoss()
+    # só otimizar parâmetros com requires_grad=True
+    optim_params = [p for p in modelo.parameters() if p.requires_grad]
+    otimizador = optim.Adam(optim_params, lr=lr)
 
-    print("\n🚀 Iniciando treino…")
+    scaler = torch.cuda.amp.GradScaler(enabled=(device=="cuda"))
+
+    torch.backends.cudnn.benchmark = True
+
+    print("\n🚀 Iniciando treino (forma B - leve)... device:", device)
 
     for ep in range(epochs):
         modelo.train()
-        total_loss = 0
+        total_loss = 0.0
+        for imgs, clima, labels in train_loader:
+            imgs = imgs.to(device)
+            clima = clima.to(device)
+            labels = labels.to(device)
 
-        for img, clima, label in train_loader:
-            img, clima, label = img.to(device), clima.to(device), label.to(device)
+            otimizador.zero_grad()
+            with torch.cuda.amp.autocast(enabled=(device=="cuda")):
+                outputs = modelo(imgs, clima)
+                loss = criterio(outputs, labels)
 
-            ot.zero_grad()
-            out = modelo(img, clima)
-            loss = loss_fn(out, label)
-            loss.backward()
-            ot.step()
+            scaler.scale(loss).backward()
+            scaler.step(otimizador)
+            scaler.update()
 
             total_loss += loss.item()
 
@@ -66,16 +55,16 @@ def treinar(local="Curitiba", epochs=10):
     modelo.eval()
     corretos = 0
     total = 0
-
     with torch.no_grad():
-        for img, clima, lab in test_loader:
-            img, clima, lab = img.to(device), clima.to(device), lab.to(device)
-            out = modelo(img, clima)
-            _, pred = torch.max(out, 1)
-            corretos += (pred == lab).sum().item()
-            total += lab.size(0)
+        for imgs, clima, labels in test_loader:
+            imgs = imgs.to(device)
+            clima = clima.to(device)
+            labels = labels.to(device)
+            outputs = modelo(imgs, clima)
+            _, preds = torch.max(outputs, 1)
+            corretos += (preds == labels).sum().item()
+            total += labels.size(0)
 
-    acc = corretos / total
-    print(f"\n🎯 Acurácia real no conjunto de teste: {acc*100:.2f}%")
-
+    acc = corretos / total if total > 0 else 0.0
+    print(f"\n Acurácia no teste: {acc*100:.2f}%")
     return modelo
