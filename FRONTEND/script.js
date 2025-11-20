@@ -1,52 +1,55 @@
-// Clothing sample data
-const data = {
-  hat: [
-    { name: "Boné Colorido", img: "https://via.placeholder.com/260x260?text=Cap+1" },
-    { name: "Gorro", img: "https://via.placeholder.com/260x260?text=Hat+2" }
-  ],
-  shirt: [
-    { name: "Camisa Jeans", img: "https://via.placeholder.com/260x260?text=Shirt+1" },
-    { name: "Camiseta Branca", img: "https://via.placeholder.com/260x260?text=Shirt+2" }
-  ],
-  pants: [
-    { name: "Calça Jeans", img: "https://via.placeholder.com/260x260?text=Pants+1" },
-    { name: "Bermuda", img: "https://via.placeholder.com/260x260?text=Pants+2" }
-  ]
-};
+const btn = document.getElementById("btnConsultar");
+const texto = document.getElementById("resultadoTexto");
 
-let index = { hat: 0, shirt: 0, pants: 0 };
+// Função para carregar a tabela climática
+async function carregarClima() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/clima"); // sua rota do backend
+        if (!response.ok) throw new Error("Erro ao buscar dados do clima");
 
-const container = document.getElementById("carouselContainer");
+        const dados = await response.json();
+        const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
 
-function render() {
-  container.innerHTML = "";
-  
-  Object.keys(data).forEach(key => {
-    const item = data[key][index[key]];
+        // Limpa tabela
+        tabela.innerHTML = "";
 
-    const block = document.createElement("div");
-    block.className = "carousel-item";
-    block.innerHTML = `
-      <div class="arrow left" onclick="change('${key}', -1)">‹</div>
-      <img src="${item.img}" alt="${item.name}">
-      <p><b>${item.name}</b></p>
-      <p class="mini-text">Sugestão: clima leve</p>
-      <div class="arrow right" onclick="change('${key}', 1)">›</div>
-    `;
+        // Filtra horários de 5 em 5 horas
+        dados.forEach(item => {
+            const hora = new Date(item.timestamp).getHours();
+            if (hora % 5 === 0) {
+                const row = tabela.insertRow();
+                row.insertCell(0).innerText = `${hora}:00`;
+                row.insertCell(1).innerText = item.temperatura.toFixed(1);
+                row.insertCell(2).innerText = item.umidade;
+                row.insertCell(3).innerText = item.condicao;
+            }
+        });
 
-    container.appendChild(block);
-  });
+    } catch (erro) {
+        console.error(erro);
+        const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
+        tabela.innerHTML = `<tr><td colspan="4">❌ Erro ao carregar dados do clima</td></tr>`;
+    }
 }
 
-function change(category, step) {
-  const max = data[category].length;
-  index[category] = (index[category] + step + max) % max;
-  render();
-}
+// Evento do botão de recomendação
+btn.addEventListener("click", async () => {
+    texto.innerText = "⏳ Consultando modelo...";
 
-render();
+    try {
+        const resp = await fetch("http://127.0.0.1:5000/recomendar");
+        const data = await resp.json();
 
-// Modal
-const modal = document.getElementById("modalRegister");
-document.getElementById("btnRegister").onclick = () => modal.classList.remove("hidden");
-document.getElementById("closeRegister").onclick = () => modal.classList.add("hidden");
+        texto.innerText = `👕 Recomendação da IA: classe ${data.recomendacao}`;
+
+        // Depois de mostrar a recomendação, carrega a tabela climática
+        await carregarClima();
+
+    } catch (erro) {
+        texto.innerText = "❌ Erro ao consultar o servidor. Verifique se o backend está rodando.";
+        console.error(erro);
+    }
+});
+
+// Atualiza a tabela climática a cada 5 minutos automaticamente
+setInterval(carregarClima, 5 * 60 * 1000);
