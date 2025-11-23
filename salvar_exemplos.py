@@ -10,7 +10,7 @@ def salvar_exemplos_frontend(dataset_name="samokosik/clothes_simplified", split=
         # Tenta carregar o dataset
         dataset = load_dataset(dataset_name)[split]
     except Exception as e:
-        print(f"❌ Erro ao carregar o dataset {dataset_name}: {e}")
+        print(f" Erro ao carregar o dataset {dataset_name}: {e}")
         return
 
     # Mapeamento de Labels para garantir que correspondem ao backend
@@ -18,7 +18,7 @@ def salvar_exemplos_frontend(dataset_name="samokosik/clothes_simplified", split=
         labels_originais = sorted(list(set([item["label"] for item in dataset])))
         label_map = {old: new for new, old in enumerate(labels_originais)}
     except KeyError:
-        print("❌ Erro: O dataset não possui a chave 'label'.")
+        print(" Erro: O dataset não possui a chave 'label'.")
         return
 
     exemplos_encontrados = {} # {classe_mapeada: 'image_id'}
@@ -28,7 +28,7 @@ def salvar_exemplos_frontend(dataset_name="samokosik/clothes_simplified", split=
         original_label = item["label"]
         mapeada_label = label_map.get(original_label)
         
-        # 💡 GERA O ID BASEADO NO ÍNDICE (00000000, 00000001...)
+        #  GERA O ID BASEADO NO ÍNDICE (00000000, 00000001...)
         image_id = f"{idx:08d}" 
         img_pil = item["image"] 
 
@@ -47,16 +47,16 @@ def salvar_exemplos_frontend(dataset_name="samokosik/clothes_simplified", split=
         # Salva a imagem
         try:
             img_pil.save(caminho_completo, 'JPEG')
-            print(f"✅ Salvo: Classe {mapeada_label} -> {caminho_completo}")
+            print(f" Salvo: Classe {mapeada_label} -> {caminho_completo}")
             exemplos_encontrados[mapeada_label] = image_id 
         except Exception as e:
-            print(f"❌ Erro ao salvar imagem {image_id}: {e}")
+            print(f" Erro ao salvar imagem {image_id}: {e}")
 
         # Pára quando tiver 1 exemplo de cada classe
         if len(exemplos_encontrados) >= len(labels_originais):
             break
 
-    print(f"\n✅ Processo concluído! {len(exemplos_encontrados)} imagens prontas para o site.")
+    print(f"\n Processo concluído! {len(exemplos_encontrados)} imagens prontas para o site.")
 
 if __name__ == "__main__":
     salvar_exemplos_frontend()

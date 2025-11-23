@@ -1,13 +1,35 @@
+/* style.css */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f4f9;
     color: #333;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
+    min-height: 100vh;
 }
 
-.container {
+/* Navegação simples no topo */
+.nav-bar {
+    margin-bottom: 20px;
+}
+.nav-link {
+    text-decoration: none;
+    color: #555;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    margin: 0 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+.nav-link:hover { background-color: #3498db; color: white; }
+
+/* Cards (Container principal) */
+.container, .card {
     background: white;
     padding: 2rem;
     border-radius: 15px;
@@ -15,11 +37,24 @@ body {
     width: 100%;
     max-width: 500px;
     text-align: center;
+    box-sizing: border-box; /* Garante que o padding não estoure a largura */
 }
 
-h1 { margin-bottom: 0.5rem; color: #2c3e50; }
+h1, h2 { margin-bottom: 0.5rem; color: #2c3e50; }
 .sub { color: #7f8c8d; margin-bottom: 2rem; }
 
+/* Inputs e Formulários */
+.form-group { margin-bottom: 15px; text-align: left; }
+label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+input[type="text"], input[type="url"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Botões */
 button {
     background-color: #3498db;
     color: white;
@@ -30,18 +65,20 @@ button {
     cursor: pointer;
     transition: background 0.3s;
     width: 100%;
+    margin-top: 10px;
 }
-
 button:hover { background-color: #2980b9; }
+button.btn-save { background-color: #28a745; }
+button.btn-save:hover { background-color: #218838; }
 
+/* Área de Resultado e Tabela */
 .resultado {
     margin: 20px 0;
     padding: 15px;
     background: #ecf0f1;
     border-radius: 10px;
-    min-height: 100px;
+    min-height: 80px;
 }
-
 #imagemRoupa {
     width: 100%;
     max-width: 200px;
@@ -49,6 +86,7 @@ button:hover { background-color: #2980b9; }
     border-radius: 8px;
     margin-top: 15px;
     border: 2px solid #bdc3c7;
+    display: none; /* Começa oculto */
 }
 
 table {
@@ -57,11 +95,37 @@ table {
     margin-top: 15px;
     font-size: 0.9rem;
 }
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
-}
-
+th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
 th { background-color: #f8f9fa; font-weight: 600; }
+
+/* --- SISTEMA DE TAGS (CADASTRO) --- */
+.tag-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    background: #fff;
+    cursor: text;
+}
+.tag-container input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    padding: 5px;
+    font-size: 14px;
+    min-width: 80px;
+}
+.tag {
+    background-color: #3498db;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.tag span { cursor: pointer; font-weight: bold; margin-left: 5px; }
+.tag span:hover { color: #ffcccc; }
