@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe AI – Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link">🏠 Home</a>
+        <a href="cadastro.html" class="nav-link">👕 Cadastrar Roupa</a>
+    </div>
+
+    <div class="container">
+        <h1>Wardrobe AI</h1>
+        <p class="sub">Recomendação de Vestuário com Visão Computacional</p>
+        
+        <button id="btnConsultar">Consultar Recomendação</button>
+
+        <div class="resultado">
+            <p id="resultadoTexto">Clique no botão para receber a sugestão da IA.</p>
+            <img id="imagemRoupa" src="" alt="Roupa Recomendada">
+        </div>
+
+        <h2>Previsão (Curitiba)</h2>
+        <table id="tabelaClima">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Temp</th>
+                    <th>Umid.</th>
+                    <th>Condição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4">⏳ Aguardando dados...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="home.js"></script> 
+</body>
+</html>

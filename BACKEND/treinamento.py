@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -33,10 +32,13 @@ def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=
     for ep in range(epochs):
         modelo.train()
         total_loss = 0.0
-        for imgs, clima, labels in train_loader:
+        
+        # CORREÇÃO 1: Adicionado o _ aqui (você já tinha feito)
+        for imgs, clima, labels, _ in train_loader: 
+            # CORREÇÃO 2: Enviar TUDO para o device (GPU), não só as imagens
             imgs = imgs.to(device)
-            clima = clima.to(device)
-            labels = labels.to(device)
+            clima = clima.to(device)   # <--- Faltava isso
+            labels = labels.to(device) # <--- Faltava isso
 
             otimizador.zero_grad()
             with torch.cuda.amp.autocast(enabled=(device=="cuda")):
@@ -51,15 +53,17 @@ def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=
 
         print(f"Época {ep+1}/{epochs} - Loss: {total_loss:.4f}")
 
-    # avaliação
+    # Avaliação
     modelo.eval()
     corretos = 0
     total = 0
     with torch.no_grad():
-        for imgs, clima, labels in test_loader:
+        # CORREÇÃO 3: Adicionado o _ aqui também, pois o dataset retorna 4 itens
+        for imgs, clima, labels, _ in test_loader:
             imgs = imgs.to(device)
             clima = clima.to(device)
             labels = labels.to(device)
+            
             outputs = modelo(imgs, clima)
             _, preds = torch.max(outputs, 1)
             corretos += (preds == labels).sum().item()
