@@ -1,5 +1,3 @@
-// cadastro.js
-
 const tagInput = document.getElementById('tagInput');
 const tagContainer = document.getElementById('tagContainer');
 
@@ -7,8 +5,11 @@ const tagContainer = document.getElementById('tagContainer');
 let listaDeTags = [];
 
 // Foca no input ao clicar na div container
-tagContainer.addEventListener('click', () => {
-    tagInput.focus();
+tagContainer.addEventListener('click', (e) => {
+    // Só foca se não clicar em remover tag
+    if(e.target === tagContainer || e.target === tagInput) {
+        tagInput.focus();
+    }
 });
 
 // Evento: Quando o usuário aperta uma tecla no input de tag
@@ -36,19 +37,21 @@ function removerTag(indice) {
 }
 
 function renderizarTags() {
-    // Remove tags visuais antigas (exceto o input)
-    document.querySelectorAll('.tag').forEach(el => el.remove());
+    // Remove tags visuais antigas (mantém o input)
+    const tagsAntigas = document.querySelectorAll('.tag-badge');
+    tagsAntigas.forEach(el => el.remove());
 
     // Recria as tags baseadas no Array
     listaDeTags.slice().reverse().forEach((tagTexto, index) => {
         const realIndex = listaDeTags.length - 1 - index;
         
         const div = document.createElement('div');
-        div.className = 'tag';
-        // O &times; cria um 'x' de fechar padrão e elegante
+        // Classes do Tailwind para a Tag (Azul bonitinho)
+        div.className = 'tag-badge bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-2 animate-pulse-once';
+        
         div.innerHTML = `
             ${tagTexto}
-            <span onclick="removerTag(${realIndex})">&times;</span>
+            <span onclick="removerTag(${realIndex})" class="cursor-pointer hover:text-blue-900 text-lg leading-none">&times;</span>
         `;
         
         // Insere a tag ANTES do input
@@ -72,7 +75,7 @@ async function enviarCadastro() {
         tags: listaDeTags 
     };
 
-    console.log("Enviando JSON:", dadosParaEnviar);
+    console.log("Enviando:", dadosParaEnviar);
 
     try {
         const resposta = await fetch('http://localhost:5000/api/clothes', { 
@@ -82,7 +85,7 @@ async function enviarCadastro() {
         });
 
         if (resposta.ok) {
-            alert("Roupa cadastrada com sucesso!");
+            alert("Roupa salva com sucesso!");
             // Limpar formulário
             document.getElementById('nomeRoupa').value = "";
             document.getElementById('imgRoupa').value = "";

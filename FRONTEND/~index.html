@@ -3,45 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wardrobe AI – Home</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Wardrobe AI - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s ease-out forwards', 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
 </head>
-<body>
-    
-    <div class="nav-bar">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="cadastro.html" class="nav-link">Cadastrar Roupa</a>
-    </div>
+<body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
 
-    <div class="container">
-        <h1>Wardrobe AI</h1>
-        <p class="sub">Recomendação de Vestuário com Visão Computacional</p>
-        
-        <button id="btnConsultar">Consultar Recomendação</button>
+    <aside class="w-96 bg-slate-900 text-white flex flex-col shadow-2xl z-10 relative overflow-hidden hidden md:flex">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
 
-        <div class="resultado">
-            <p id="resultadoTexto">Clique no botão para receber a sugestão.</p>
-            <img id="imagemRoupa" src="" alt="Roupa Recomendada">
+        <div class="p-8 relative z-10 flex flex-col h-full">
+            <div class="mb-8">
+                <h2 class="text-slate-400 text-xs font-bold tracking-widest uppercase mb-1">Localização</h2>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <h1 class="text-2xl font-bold text-white">Curitiba</h1>
+                </div>
+            </div>
+
+            <div class="text-center mb-8 bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+                <p class="text-blue-300 font-medium mb-2" id="condicaoDestaque">Carregando...</p>
+                <div class="flex justify-center items-start">
+                    <span id="tempDestaque" class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">--</span>
+                    <span class="text-3xl text-slate-400 mt-2">°C</span>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-2">
+                <h3 class="text-slate-500 text-xs font-bold uppercase mb-4 tracking-wider">Previsão</h3>
+                <table class="w-full text-sm text-left border-collapse" id="tabelaClima">
+                    <thead class="text-xs text-slate-400 bg-slate-800/50 uppercase sticky top-0 backdrop-blur-md">
+                        <tr><th class="py-2 px-1">Hora</th><th class="py-2 px-1">Temp</th><th class="py-2 px-1">☔</th><th class="py-2 px-1">💨</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50"></tbody>
+                </table>
+            </div>
         </div>
+    </aside>
 
-        <h2>Previsão do Tempo (Curitiba)</h2>
-        <table id="tabelaClima">
-            <thead>
-                <tr>
-                    <th>Hora</th>
-                    <th>Temp</th>
-                    <th>Umid.</th>
-                    <th>Condição</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="4">Aguardando dados...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <main class="flex-1 flex flex-col relative overflow-y-auto">
+        
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-8 py-4 flex justify-between items-center shadow-sm">
+            <div class="font-bold text-xl tracking-tight text-slate-800">
+                Wardrobe<span class="text-blue-600">AI</span> ✨
+            </div>
+            <nav class="flex gap-2">
+                <a href="index.html" class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-full transition cursor-pointer">
+                    Home
+                </a>
+                <a href="cadastro.html" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition cursor-pointer">
+                    Cadastrar Roupa
+                </a>
+            </nav>
+        </header>
 
+        <div class="flex-1 flex items-center justify-center p-8 bg-slate-50">
+            <div class="w-full max-w-4xl text-center animate-fade-in-up">
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Seu Personal Stylist</h1>
+                <p class="text-lg text-slate-500 mb-10">IA analisando o clima e seu estilo.</p>
+
+                <div class="bg-white p-2 rounded-full shadow-lg border border-slate-200 inline-flex items-center gap-2 mb-12">
+                    <div class="pl-4 pr-2 border-r border-slate-200">
+                        <select id="generoSelect" class="bg-transparent font-semibold text-slate-700 outline-none cursor-pointer">
+                            <option value="male">Masculino</option>
+                            <option value="female">Feminino</option>
+                            <option value="unisex">Unissex</option>
+                        </select>
+                    </div>
+                    <button id="btnConsultar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-md transition transform hover:scale-105">
+                        Gerar Look
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
+                        <div class="w-12 h-12 bg-blue-50 text-2xl flex items-center justify-center rounded-2xl mb-4">🧢</div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Cabeça</p>
+                        <h3 id="itemCabeca" class="text-lg font-bold text-slate-800">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
+                        <div class="w-12 h-12 bg-indigo-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👕</div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Tronco</p>
+                        <h3 id="itemTronco" class="text-lg font-bold text-slate-800">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
+                        <div class="w-12 h-12 bg-purple-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👖</div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Pernas</p>
+                        <h3 id="itemPernas" class="text-lg font-bold text-slate-800">-</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
+                        <div class="w-12 h-12 bg-emerald-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👟</div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Pés</p>
+                        <h3 id="itemPes" class="text-lg font-bold text-slate-800">-</h3>
+                    </div>
+                </div>
+                <p id="infoClimaTexto" class="mt-8 text-sm text-slate-400 font-medium"></p>
+            </div>
+        </div>
+    </main>
     <script src="home.js"></script>
 </body>
 </html>

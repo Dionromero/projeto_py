@@ -3,40 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wardrobe AI – Cadastro</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Wardrobe AI - Cadastro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+    </script>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <div class="nav-bar"
-        <a href="index.html" class="nav-link"> Home</a>
-        <a href="cadastro.html" class="nav-link"> Cadastrar Roupa</a>
-    </div>
-
-    <div class="card">
-        <h1>Novo Item</h1>
-        <p class="sub">Adicione roupas ao guarda-roupa virtual</p>
-        
-        <div class="form-group">
-            <label>Nome da Peça:</label>
-            <input type="text" id="nomeRoupa" placeholder="Ex: Jaqueta Jeans">
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-8 py-4 flex justify-between items-center shadow-sm">
+        <div class="font-bold text-xl tracking-tight text-slate-800">
+            Wardrobe<span class="text-blue-600">AI</span> ✨
         </div>
+        <nav class="flex gap-2">
+            <a href="index.html" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition cursor-pointer">
+                Home
+            </a>
+            <a href="cadastro.html" class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-full transition cursor-pointer">
+                Cadastrar Roupa
+            </a>
+        </nav>
+    </header>
 
-        <div class="form-group">
-            <label>URL da Imagem:</label>
-            <input type="url" id="imgRoupa" placeholder="https://...">
-        </div>
+    <main class="flex-1 flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-lg border border-slate-100">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-black text-slate-900 mb-2">Novo Item</h1>
+                <p class="text-slate-500">Adicione peças ao seu guarda-roupa virtual</p>
+            </div>
 
-        <div class="form-group">
-            <label>Tags (Digite e dê Enter):</label>
-            <div class="tag-container" id="tagContainer">
-                <input type="text" id="tagInput" placeholder="Add tag...">
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nome da Peça</label>
+                    <input type="text" id="nomeRoupa" placeholder="Ex: Jaqueta Jeans" 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">URL da Imagem</label>
+                    <input type="url" id="imgRoupa" placeholder="https://..." 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tags (Enter para adicionar)</label>
+                    <div id="tagContainer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex flex-wrap gap-2 cursor-text focus-within:ring-2 focus-within:ring-blue-500 transition min-h-[50px]">
+                        <input type="text" id="tagInput" placeholder="Add..." class="bg-transparent border-none outline-none flex-1 min-w-[60px] text-slate-700">
+                    </div>
+                </div>
+                <button onclick="enviarCadastro()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-1 active:scale-95">
+                    Salvar Roupa
+                </button>
             </div>
         </div>
-
-        <button class="btn-save" onclick="enviarCadastro()">Salvar Cadastro</button>
-    </div>
-
+    </main>
     <script src="cadastro.js"></script>
 </body>
 </html>

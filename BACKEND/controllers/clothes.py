@@ -1,9 +1,10 @@
-
-from flask import Blueprint, request, jsonify
 import sys
 import os
-# Adiciona o diretório pai ao caminho do sistema para encontrar 'clima_api' e 'motor_recomendacao'
+from flask import Blueprint, request, jsonify
+
+# --- CORREÇÃO: Ajuste de caminho ANTES dos imports ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# -----------------------------------------------------
 
 clothes_bp = Blueprint('clothes', __name__)
 
