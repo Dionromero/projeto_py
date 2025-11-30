@@ -5,44 +5,47 @@ from torch.utils.data import DataLoader
 from dados import preparar_datasets
 from modelo import ModeloVisaoClimaLite
 
-def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=True):
-    train_ds, test_ds, num_classes = preparar_datasets(local)
-    clima_dim = len(train_ds.clima)
-
+def treinar(epochs=10, batch_size=64, lr=1e-4, freeze_backbone=False):
+    
+    train_ds, test_ds, num_classes = preparar_datasets()
+    
+    # Dataloaders
+    # Nota: Se der erro de "BrokenPipe" no Windows, mude num_workers para 0
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=4, pin_memory=True)
+                              num_workers=2, pin_memory=True)
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                             num_workers=4, pin_memory=True)
+                             num_workers=2, pin_memory=True)
 
-    modelo = ModeloVisaoClimaLite(num_classes, clima_dim, freeze_backbone=freeze_backbone)
+    # Instancia modelo sem dimensão de clima
+    modelo = ModeloVisaoClimaLite(num_classes, freeze_backbone=freeze_backbone)
+    
     device = "cuda" if torch.cuda.is_available() else "cpu"
     modelo.to(device)
 
     criterio = nn.CrossEntropyLoss()
-    # só otimizar parâmetros com requires_grad=True
-    optim_params = [p for p in modelo.parameters() if p.requires_grad]
-    otimizador = optim.Adam(optim_params, lr=lr)
-
+    otimizador = optim.Adam(modelo.parameters(), lr=lr)
+    
+    # --- CORREÇÃO AQUI: Removido 'verbose=True' ---
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(otimizador, mode='min', factor=0.5, patience=2)
+    # ----------------------------------------------
+    
     scaler = torch.cuda.amp.GradScaler(enabled=(device=="cuda"))
-
     torch.backends.cudnn.benchmark = True
 
-    print("\n🚀 Iniciando treino (forma B - leve)... device:", device)
+    print(f"\n Iniciando treino (Visão Pura)... Device: {device}")
 
     for ep in range(epochs):
         modelo.train()
         total_loss = 0.0
         
-        # CORREÇÃO 1: Adicionado o _ aqui (você já tinha feito)
-        for imgs, clima, labels, _ in train_loader: 
-            # CORREÇÃO 2: Enviar TUDO para o device (GPU), não só as imagens
+        for imgs, labels, _ in train_loader: 
             imgs = imgs.to(device)
-            clima = clima.to(device)   # <--- Faltava isso
-            labels = labels.to(device) # <--- Faltava isso
+            labels = labels.to(device)
 
             otimizador.zero_grad()
             with torch.cuda.amp.autocast(enabled=(device=="cuda")):
-                outputs = modelo(imgs, clima)
+                # Modelo recebe só a imagem
+                outputs = modelo(imgs)
                 loss = criterio(outputs, labels)
 
             scaler.scale(loss).backward()
@@ -50,21 +53,26 @@ def treinar(local="Curitiba", epochs=5, batch_size=64, lr=1e-3, freeze_backbone=
             scaler.update()
 
             total_loss += loss.item()
-
-        print(f"Época {ep+1}/{epochs} - Loss: {total_loss:.4f}")
+        
+        avg_loss = total_loss / len(train_loader)
+        
+        # Pega o Learning Rate atual para imprimir (já que removemos o verbose)
+        lr_atual = otimizador.param_groups[0]['lr']
+        print(f"Época {ep+1}/{epochs} - Loss Médio: {avg_loss:.4f} - LR: {lr_atual:.6f}")
+        
+        # Atualiza o scheduler
+        scheduler.step(avg_loss)
 
     # Avaliação
     modelo.eval()
     corretos = 0
     total = 0
     with torch.no_grad():
-        # CORREÇÃO 3: Adicionado o _ aqui também, pois o dataset retorna 4 itens
-        for imgs, clima, labels, _ in test_loader:
+        for imgs, labels, _ in test_loader:
             imgs = imgs.to(device)
-            clima = clima.to(device)
             labels = labels.to(device)
             
-            outputs = modelo(imgs, clima)
+            outputs = modelo(imgs)
             _, preds = torch.max(outputs, 1)
             corretos += (preds == labels).sum().item()
             total += labels.size(0)
