@@ -4,63 +4,82 @@ const tagContainer = document.getElementById('tagContainer');
 // Array para armazenar as tags
 let listaDeTags = [];
 
-// Foca no input ao clicar na div container
+// Foca no input ao clicar na área cinza
 tagContainer.addEventListener('click', (e) => {
-    // Só foca se não clicar em remover tag
-    if(e.target === tagContainer || e.target === tagInput) {
+    if(e.target === tagContainer) {
         tagInput.focus();
     }
 });
 
-// Evento: Quando o usuário aperta uma tecla no input de tag
-tagInput.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault(); 
-        const valor = tagInput.value.trim();
-        
-        // Validação: Não vazio e não duplicado
-        if (valor !== "" && !listaDeTags.includes(valor)) {
-            adicionarTag(valor);
-        }
-        tagInput.value = ""; 
+// Adiciona tag ao apertar Enter ou Vírgula
+tagInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        processarInput();
+    }
+    // Apaga a última tag se apertar Backspace com input vazio
+    if (e.key === 'Backspace' && tagInput.value === '' && listaDeTags.length > 0) {
+        removerTag(listaDeTags.length - 1);
     }
 });
 
-function adicionarTag(texto) {
-    listaDeTags.push(texto);
-    renderizarTags();
+// Adiciona tag ao clicar fora do campo (Blur)
+tagInput.addEventListener('blur', function() {
+    processarInput();
+});
+
+function processarInput() {
+    const valor = tagInput.value.trim().replace(',', ''); // Remove vírgula se tiver
+    if (valor !== "" && !listaDeTags.includes(valor)) {
+        listaDeTags.push(valor);
+        renderizarTags();
+    }
+    tagInput.value = "";
 }
 
 function removerTag(indice) {
-    listaDeTags.splice(indice, 1); 
+    listaDeTags.splice(indice, 1);
     renderizarTags();
 }
 
 function renderizarTags() {
-    // Remove tags visuais antigas (mantém o input)
-    const tagsAntigas = document.querySelectorAll('.tag-badge');
-    tagsAntigas.forEach(el => el.remove());
+    // Limpa apenas as tags visuais (mantém o input)
+    const tagsAtuais = document.querySelectorAll('.tag-badge');
+    tagsAtuais.forEach(el => el.remove());
 
-    // Recria as tags baseadas no Array
-    listaDeTags.slice().reverse().forEach((tagTexto, index) => {
-        const realIndex = listaDeTags.length - 1 - index;
-        
+    // Recria as tags
+    listaDeTags.forEach((tagTexto, index) => {
         const div = document.createElement('div');
-        // Classes do Tailwind para a Tag (Azul bonitinho)
-        div.className = 'tag-badge bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-2 animate-pulse-once';
+        // Estilo da Tag (Azul bonito)
+        div.className = 'tag-badge bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-2 select-none';
         
-        div.innerHTML = `
-            ${tagTexto}
-            <span onclick="removerTag(${realIndex})" class="cursor-pointer hover:text-blue-900 text-lg leading-none">&times;</span>
-        `;
+        // Texto da Tag
+        const spanTexto = document.createElement('span');
+        spanTexto.innerText = tagTexto;
         
-        // Insere a tag ANTES do input
+        // Botão de Fechar (X)
+        const spanClose = document.createElement('span');
+        spanClose.innerHTML = '&times;';
+        spanClose.className = 'cursor-pointer hover:text-blue-900 text-lg leading-none';
+        
+        // Evento de remover (Mais seguro que onclick no HTML)
+        spanClose.onclick = function() {
+            removerTag(index);
+        };
+
+        div.appendChild(spanTexto);
+        div.appendChild(spanClose);
+        
+        // Insere ANTES do input
         tagContainer.insertBefore(div, tagInput);
     });
 }
 
 // ENVIO PARA O BACKEND
 async function enviarCadastro() {
+    // Garante que a tag pendente seja adicionada antes de enviar
+    processarInput();
+
     const nome = document.getElementById('nomeRoupa').value;
     const imagem = document.getElementById('imgRoupa').value;
 
@@ -86,7 +105,7 @@ async function enviarCadastro() {
 
         if (resposta.ok) {
             alert("Roupa salva com sucesso!");
-            // Limpar formulário
+            // Limpar tudo
             document.getElementById('nomeRoupa').value = "";
             document.getElementById('imgRoupa').value = "";
             listaDeTags = [];

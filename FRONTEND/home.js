@@ -1,142 +1,148 @@
 const btn = document.getElementById("btnConsultar");
 const generoSelect = document.getElementById("generoSelect");
+const estiloSelect = document.getElementById("estiloSelect");
 const infoClimaTexto = document.getElementById("infoClimaTexto");
 
-const elCabeca = document.getElementById("itemCabeca");
-const elTronco = document.getElementById("itemTronco");
-const elPernas = document.getElementById("itemPernas");
-const elPes = document.getElementById("itemPes");
+// Elementos da Toggle
+const btnToggle = document.getElementById("btnToggleClima");
+const containerTabela = document.getElementById("containerTabela");
+const setaToggle = document.getElementById("setaToggle");
 
-const tempDestaque = document.getElementById("tempDestaque");
-const condicaoDestaque = document.getElementById("condicaoDestaque");
-const detalheUmid = document.getElementById("detalheUmid");
-const detalheChuvaHero = document.getElementById("detalheChuvaHero");
-const dataHoje = document.getElementById("dataHoje");
+// Lógica de Abrir/Fechar Tabela
+if(btnToggle && containerTabela) {
+    btnToggle.addEventListener("click", () => {
+        // Verifica se está aberto
+        const isClosed = containerTabela.classList.contains("max-h-0");
 
-function obterIconeClima(condicao) {
-    if (!condicao) return "☁️";
-    const c = condicao.toLowerCase();
-    if (c.includes("sol") || c.includes("limpo")) return "☀️";
-    if (c.includes("chuva") || c.includes("garoa")) return "🌧️";
-    if (c.includes("trovoada") || c.includes("raio")) return "⛈️";
-    if (c.includes("nublado") || c.includes("nuvens")) return "☁️";
-    if (c.includes("parcial")) return "⛅";
-    if (c.includes("neblina")) return "🌫️";
+        if (isClosed) {
+            // ABRIR
+            containerTabela.classList.remove("max-h-0", "opacity-0");
+            containerTabela.classList.add("max-h-[400px]", "opacity-100"); // Altura máx suficiente
+            setaToggle.classList.add("rotate-180"); // Gira a seta
+        } else {
+            // FECHAR
+            containerTabela.classList.remove("max-h-[400px]", "opacity-100");
+            containerTabela.classList.add("max-h-0", "opacity-0");
+            setaToggle.classList.remove("rotate-180"); // Volta a seta
+        }
+    });
+}
+
+const parts = {
+    cima:   { txt: document.getElementById("itemCima"),   img: document.getElementById("imgCima") },
+    baixo:  { txt: document.getElementById("itemBaixo"),  img: document.getElementById("imgBaixo") },
+    casaco: { txt: document.getElementById("itemCasaco"), img: document.getElementById("imgCasaco") }
+};
+
+const BASE_URL = "";
+
+function obterIconeClima(textoCondicao) {
+    if (!textoCondicao) return "☁️";
+    const c = textoCondicao.toLowerCase();
+    if (c.includes("sol") || c.includes("limpo") || c.includes("clear")) return "☀️";
+    if (c.includes("chuva") || c.includes("rain") || c.includes("drizzle")) return "🌧️";
+    if (c.includes("trovoada") || c.includes("thunder")) return "⛈️";
+    if (c.includes("nublado") || c.includes("cloud")) return "☁️";
     return "🌥️"; 
 }
 
 async function carregarClima() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/api/clima"); 
-        if (!response.ok) throw new Error("Erro API Clima");
+        const response = await fetch(`${BASE_URL}/api/clima`); 
+        if (!response.ok) return;
         const dados = await response.json();
         
+        // Data
         const hoje = new Date();
-        if(dataHoje) dataHoje.innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' });
+        const opcoesData = { day: 'numeric', month: 'short' };
+        document.getElementById("dataHoje").innerText = hoje.toLocaleDateString('pt-BR', opcoesData).replace('.', '');
 
-        if(dados.length > 0) {
-            // Pega o horário atual (mais próximo)
-            const horaAtual = new Date().getHours();
-            // Tenta achar o dado da hora atual na lista, senão pega o primeiro
-            const atual = dados.find(d => new Date(d.timestamp).getHours() === horaAtual) || dados[0];
+        // Card Hero
+        if(dados && dados.current) {
+            document.getElementById("tempDestaque").innerText = Math.round(dados.current.temp_c);
+            document.getElementById("condicaoDestaque").innerText = dados.current.condition.text;
+            document.getElementById("detalheUmid").innerText = `${dados.current.humidity}%`;
+            
+            // Ícone Grande
+            const iconHero = obterIconeClima(dados.current.condition.text);
+            const iconEl = document.getElementById("iconDestaque");
+            if(iconEl) iconEl.innerText = iconHero;
 
-            if(tempDestaque) tempDestaque.innerText = Math.round(atual.temperatura);
-            if(condicaoDestaque) condicaoDestaque.innerText = atual.condicao;
-            if(detalheUmid) detalheUmid.innerText = `💧 ${atual.umidade}%`;
-            if(detalheChuvaHero) detalheChuvaHero.innerText = `☔ ${atual.chance_of_rain}%`;
+            let chuva = 0;
+            if(dados.forecast) chuva = dados.forecast.forecastday[0].hour[0].chance_of_rain;
+            document.getElementById("detalheChuvaHero").innerText = `${chuva}%`;
         }
 
+        // Tabela
         const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
-        tabela.innerHTML = "";
-        
-        dados.forEach((item, index) => {
-            const horaNum = new Date(item.timestamp).getHours();
-            
-            // Mostra a cada 2 horas para caber na tela
-            if (index < 24 && horaNum % 2 === 0) { 
-                const row = tabela.insertRow();
-                row.className = "hover:bg-white/10 transition duration-200 group border-b border-white/5";
-
-                // Hora
-                const cHora = row.insertCell(0);
-                cHora.className = "py-3 px-1 text-slate-400 font-mono text-[10px]";
-                cHora.innerText = `${String(horaNum).padStart(2, '0')}:00`;
-
-                // Ícone
-                const cIcon = row.insertCell(1);
-                cIcon.className = "py-3 px-1 text-center text-base";
-                cIcon.innerText = obterIconeClima(item.condicao);
-
-                // Temp
-                const cTemp = row.insertCell(2);
-                cTemp.className = "py-3 px-1 font-bold text-white text-xs";
-                cTemp.innerText = `${Math.round(item.temperatura)}°`;
-
-                // Chuva (Ajustado)
-                const cChuva = row.insertCell(3);
-                // Garante que é número
-                const probChuva = Number(item.chance_of_rain);
-                
-                cChuva.className = "py-3 px-1 text-center text-xs";
-                
-                if (probChuva > 0) {
-                    // Se for maior que 0, mostra azul
-                    cChuva.innerHTML = `<span class="text-blue-400 font-bold">${probChuva}%</span>`;
-                } else {
-                    // Se for 0 cravado
-                    cChuva.innerHTML = `<span class="text-slate-600 opacity-40">0%</span>`;
+        if(tabela && dados.forecast) {
+            tabela.innerHTML = "";
+            dados.forecast.forecastday[0].hour.forEach((item, index) => {
+                if (index % 3 === 0) { // A cada 3h para ficar mais compacto
+                    const row = tabela.insertRow();
+                    row.className = "hover:bg-white/5 transition-colors border-b border-slate-800/50";
+                    
+                    const hora = item.time.split(' ')[1];
+                    const icon = obterIconeClima(item.condition.text);
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-2 font-mono text-slate-400">${hora}</td>
+                        <td class="py-3 px-2 text-center text-base">${icon}</td>
+                        <td class="py-3 px-2 font-bold text-white text-right">${Math.round(item.temp_c)}°</td>
+                        <td class="py-3 px-2 text-center text-xs text-blue-400 font-medium">${item.chance_of_rain}%</td>
+                    `;
                 }
-
-                // Vento
-                const cVento = row.insertCell(4);
-                const velVento = Math.round(item.vento_kph || 0);
-                cVento.className = "py-3 px-1 text-right text-xs text-slate-400";
-                cVento.innerText = `${velVento} km`;
-            }
-        });
-
-    } catch (e) { 
-        console.error(e);
-        if(condicaoDestaque) condicaoDestaque.innerText = "Offline";
-    }
+            });
+        }
+    } catch (e) { console.warn("Clima indisponível"); }
 }
 
 btn.addEventListener("click", async () => {
     const genero = generoSelect.value;
+    const estilo = estiloSelect.value;
     const originalText = btn.innerHTML;
     
-    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Gerando...`;
+    btn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg> Gerando...`;
     btn.disabled = true;
 
     try {
-        const resp = await fetch(`http://127.0.0.1:5000/recomendar?genero=${genero}&local=Curitiba`);
+        const resp = await fetch(`${BASE_URL}/recomendar?genero=${genero}&local=Curitiba&estilo=${estilo}`);
         const data = await resp.json();
 
-        const updateField = (el, text) => {
-            el.style.opacity = 0;
+        const updatePart = (partKey, textVal, imgUrl) => {
+            const el = parts[partKey];
+            if(!el) return;
+            el.txt.style.opacity = 0;
+            if(el.img) el.img.style.opacity = 0;
+
             setTimeout(() => {
-                el.innerText = text;
-                el.style.opacity = 1;
+                if (!textVal || textVal === "-" || textVal === "Peça Única") {
+                    el.txt.innerText = textVal === "Peça Única" ? "(Peça Única)" : "—";
+                    if(textVal === "Peça Única") el.img.src = ""; else el.img.src = "https://placehold.co/1x1/ffffff/ffffff"; 
+                } else {
+                    el.txt.innerText = textVal;
+                    if (imgUrl) {
+                        let src = imgUrl.startsWith('http') || imgUrl.startsWith('data') ? imgUrl : BASE_URL + imgUrl;
+                        el.img.src = src;
+                        el.img.onload = () => { el.img.style.opacity = 1; };
+                    }
+                }
+                el.txt.style.opacity = 1;
             }, 200);
         };
 
-        updateField(elCabeca, data.look.cabeca);
-        
-        let troncoTexto = data.look.tronco;
-        if (data.look.casaco) troncoTexto = `${data.look.casaco} + ${data.look.tronco}`;
-        updateField(elTronco, troncoTexto);
+        updatePart("cima", data.look.cima, data.imagens.cima);
+        updatePart("baixo", data.look.baixo, data.imagens.baixo);
+        updatePart("casaco", data.look.casaco, data.imagens.casaco);
 
-        updateField(elPernas, data.look.pernas);
-        updateField(elPes, data.look.pes);
-
-        infoClimaTexto.innerText = `Look ideal para ${data.temperatura}°C (${data.categoria_clima})`;
-        
+        if(infoClimaTexto) infoClimaTexto.innerText = `Look ideal para ${data.temperatura}°C (${data.categoria_clima})`;
         await carregarClima();
 
-    } catch (err) {
-        console.error(err);
-        alert("Erro ao conectar.");
-    } finally {
+    } catch (err) { alert("Erro ao conectar."); } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
