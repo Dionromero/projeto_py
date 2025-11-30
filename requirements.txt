@@ -1,0 +1,11 @@
+flask
+flask-cors
+torch
+torchvision
+datasets
+pandas
+requests
+gunicorn
+scikit-learn
+numpy
+huggingface-hub

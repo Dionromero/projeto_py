@@ -1,68 +1,56 @@
-# motor_recomendacao.py
-
-# Expandimos o catálogo para garantir cobertura total
+# CATALOGO BLINDADO: Apenas peças que existem no dataset clothes-with-class
 CATALOGO_REGRAS = {
-    # TRONCO
-    "Camiseta": {"parte": "tronco", "genero": ["unisex"], "clima": ["quente", "neutro"]},
-    "Suéter":   {"parte": "tronco", "genero": ["unisex"], "clima": ["frio", "muito_frio"]},
-    "Blusa":    {"parte": "tronco", "genero": ["female"], "clima": ["neutro", "quente"]},
-    "Vestido":  {"parte": "corpo_inteiro", "genero": ["female"], "clima": ["quente", "neutro"]},
-    
-    # CASACO
-    "Jaqueta":  {"parte": "tronco_externo", "genero": ["unisex"], "clima": ["frio", "muito_frio"]},
+    # 1. CASUAL
+    "Camiseta Básica":  {"parte": "cima", "genero": ["U"], "clima": ["Q", "N"], "estilo": ["Casual"]},
+    "Jeans Reto":       {"parte": "baixo", "genero": ["U"], "clima": ["N", "F", "MF"], "estilo": ["Casual"]},
+    "Short Jeans":      {"parte": "baixo", "genero": ["U"], "clima": ["Q"], "estilo": ["Casual"]},
+    "Moletom Hoodie":   {"parte": "casaco", "genero": ["U"], "clima": ["F", "N"], "estilo": ["Casual"]},
+    "Jaqueta Jeans":    {"parte": "casaco", "genero": ["U"], "clima": ["N", "F"], "estilo": ["Casual"]},
+    "Vestido Casual":   {"parte": "corpo_inteiro", "genero": ["F"], "clima": ["Q", "N"], "estilo": ["Casual"]},
 
-    # PERNAS
-    "Calça":    {"parte": "pernas", "genero": ["unisex"], "clima": ["neutro", "frio", "muito_frio"]},
-    "Short":    {"parte": "pernas", "genero": ["unisex"], "clima": ["quente"]},
-    "Saia":     {"parte": "pernas", "genero": ["female"], "clima": ["quente", "neutro"]},
+    # 2. FORMAL
+    "Camisa Social":    {"parte": "cima", "genero": ["U"], "clima": ["N", "Q"], "estilo": ["Formal"]},
+    "Calça Social":     {"parte": "baixo", "genero": ["U"], "clima": ["N", "F"], "estilo": ["Formal"]},
+    "Blazer":           {"parte": "casaco", "genero": ["U"], "clima": ["N", "F"], "estilo": ["Formal"]},
+    "Terno":            {"parte": "corpo_inteiro", "genero": ["M"], "clima": ["N", "F"], "estilo": ["Formal"]},
+    "Vestido Social":   {"parte": "corpo_inteiro", "genero": ["F"], "clima": ["Q", "N"], "estilo": ["Formal"]},
 
-    # --- NOVOS ITENS PARA CABEÇA E PÉS (Garantia de Preenchimento) ---
-    
-    # CABEÇA
-    "Boné":     {"parte": "cabeca", "genero": ["unisex"], "clima": ["quente", "neutro"]},
-    "Chapéu":   {"parte": "cabeca", "genero": ["unisex"], "clima": ["quente"]},
-    "Gorro":    {"parte": "cabeca", "genero": ["unisex"], "clima": ["frio", "muito_frio"]},
-    
-    # PÉS
-    "Tênis":    {"parte": "pes", "genero": ["unisex"], "clima": ["quente", "neutro", "frio"]},
-    "Bota":     {"parte": "pes", "genero": ["unisex"], "clima": ["frio", "muito_frio"]},
-    "Sandália": {"parte": "pes", "genero": ["female", "unisex"], "clima": ["quente"]},
-    "Sapato":   {"parte": "pes", "genero": ["unisex"], "clima": ["neutro"]}
+    # 3. ESPORTIVO
+    "Regata Sport":     {"parte": "cima", "genero": ["U"], "clima": ["Q"], "estilo": ["Esportivo"]},
+    "Camiseta Dry":     {"parte": "cima", "genero": ["U"], "clima": ["Q", "N"], "estilo": ["Esportivo"]},
+    "Legging":          {"parte": "baixo", "genero": ["F"], "clima": ["N", "F", "Q"], "estilo": ["Esportivo"]},
+    "Short Esportivo":  {"parte": "baixo", "genero": ["U"], "clima": ["Q"], "estilo": ["Esportivo"]},
+    "Jaqueta Sport":    {"parte": "casaco", "genero": ["U"], "clima": ["F", "N"], "estilo": ["Esportivo"]},
 }
 
 def definir_tipo_clima(temp):
-    if temp >= 24: return "quente"
-    if 17 <= temp < 24: return "neutro"
-    if 10 <= temp < 17: return "frio"
-    return "muito_frio"
+    if temp >= 22: return "Q"
+    if 15 <= temp < 22: return "N"
+    if 10 <= temp < 15: return "F"
+    return "MF"
 
-def filtrar(todas_classes, temperatura, genero_usuario):
+def filtrar(todas_classes, temperatura, genero_usuario, estilo_usuario):
     clima_atual = definir_tipo_clima(temperatura)
     
-    recomendacao_estruturada = {
-        "cabeca": [],
-        "tronco": [],
-        "tronco_externo": [], 
-        "pernas": [],
-        "pes": [],
-        "corpo_inteiro": []
-    }
+    # Define permissões de gênero
+    if genero_usuario == "male": generos_permitidos = ["M", "U"]
+    elif genero_usuario == "female": generos_permitidos = ["F", "U"]
+    else: generos_permitidos = ["M", "F", "U"]
 
-    # Percorre o catálogo expandido
-    for nome_roupa, regras in CATALOGO_REGRAS.items():
-        # 1. Filtro Gênero
-        if "unisex" in regras["genero"] or genero_usuario in regras["genero"]:
-            
-            # 2. Filtro Clima
-            aceita_clima = False
-            if clima_atual in regras["clima"]:
-                aceita_clima = True
-            # Lógica extra: Tênis sempre serve, a menos que seja muito extremo
-            elif nome_roupa == "Tênis":
-                aceita_clima = True
-            
-            if aceita_clima:
-                parte = regras["parte"]
-                recomendacao_estruturada[parte].append(nome_roupa)
+    recomendacao = {"cima": [], "baixo": [], "casaco": [], "corpo_inteiro": []}
 
-    return recomendacao_estruturada, clima_atual
+    for nome, regras in CATALOGO_REGRAS.items():
+        if estilo_usuario not in regras["estilo"]: continue
+
+        eh_compativel = any(g in generos_permitidos for g in regras["genero"])
+        if not eh_compativel: continue
+
+        clima_ok = False
+        if clima_atual in regras["clima"]: clima_ok = True
+        if clima_atual == "F" and "MF" in regras["clima"]: clima_ok = True
+        if clima_atual == "N" and "Q" in regras["clima"] and regras["parte"] == "cima": clima_ok = True
+
+        if clima_ok:
+            recomendacao[regras["parte"]].append(nome)
+
+    return recomendacao, clima_atual

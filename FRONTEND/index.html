@@ -3,145 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wardrobe AI - Dashboard</title>
+    <title>Wardrobe AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
-                }
-            }
+        tailwind.config = { 
+            theme: { 
+                extend: { 
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }, 
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s ease-out forwards' }, 
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } } 
+                } 
+            } 
         }
     </script>
-    <style>
-        /* ESCONDER BARRA DE ROLAGEM, MAS MANTER O SCROLL */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
+    <style> 
+        .no-scrollbar::-webkit-scrollbar { display: none; } 
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
+        /* Corrige fundo das opções no Windows */
+        select option { background-color: #1e293b; color: white; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
+<body class="bg-[#0b1121] text-slate-200 h-screen flex overflow-hidden selection:bg-blue-500 selection:text-white">
 
-    <aside class="w-96 bg-slate-900 text-white flex flex-col shadow-2xl z-10 relative overflow-hidden hidden md:flex">
-        <div class="absolute top-0 left-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
-        <div class="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow"></div>
+    <aside class="w-96 bg-[#0f172a] text-white flex flex-col shadow-2xl z-50 relative overflow-hidden hidden md:flex border-r border-slate-800">
+        <div class="absolute top-[-10%] left-[-10%] w-64 h-64 bg-blue-600/20 rounded-full blur-[80px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-64 h-64 bg-purple-600/20 rounded-full blur-[80px] pointer-events-none"></div>
 
-        <div class="p-6 relative z-10 flex flex-col h-full">
-            <div class="mb-6 flex justify-between items-end">
+        <div class="p-8 relative z-10 flex flex-col h-full">
+            <div class="flex justify-between items-end mb-8">
                 <div>
-                    <h2 class="text-slate-400 text-[10px] font-bold tracking-widest uppercase mb-1">Localização</h2>
-                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <h2 class="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase mb-1">Localização Atual</h2>
+                    <h1 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
                         Curitiba
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     </h1>
                 </div>
-                <div class="text-right">
-                     <p class="text-xs text-slate-400" id="dataHoje">Hoje</p>
-                </div>
+                <div class="bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700"><p class="text-xs font-medium text-slate-300" id="dataHoje">--/--</p></div>
             </div>
 
-            <div class="text-center mb-6 bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-md shadow-lg">
-                <div class="flex justify-center items-center gap-4">
-                    <span id="tempDestaque" class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-blue-200">--</span>
-                    <div class="text-left">
-                        <span class="text-2xl text-blue-400 block -mb-1">°C</span>
-                        <p class="text-sm text-slate-300 font-medium" id="condicaoDestaque">...</p>
+            <div class="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-6 rounded-[2rem] shadow-xl mb-8 overflow-hidden group hover:border-blue-500/30 transition-all duration-500">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-blue-500/20 transition-all duration-500"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-start">
+                        <span id="tempDestaque" class="text-7xl font-black text-white tracking-tighter drop-shadow-lg">--</span>
+                        <span class="text-3xl text-blue-400 mt-2 font-light">°</span>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <div id="iconDestaque" class="text-4xl mb-1 filter drop-shadow-md">☁️</div>
+                        <p id="condicaoDestaque" class="text-sm font-medium text-blue-100">Carregando...</p>
                     </div>
                 </div>
-                <div class="mt-4 flex justify-between px-4 text-xs text-slate-400 border-t border-white/10 pt-4">
-                     <span id="detalheUmid">💧 --%</span>
-                     <span id="detalheChuvaHero">☔ --%</span>
+                <div class="mt-6 flex justify-between items-center pt-4 border-t border-white/5">
+                    <div class="flex items-center gap-2 text-xs font-medium text-slate-400"><span class="bg-slate-950/50 p-1.5 rounded-lg">💧 <span id="detalheUmid">--%</span></span></div>
+                    <div class="flex items-center gap-2 text-xs font-medium text-slate-400"><span class="bg-slate-950/50 p-1.5 rounded-lg">☔ <span id="detalheChuvaHero">--%</span></span></div>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-1 no-scrollbar">
-                <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-3 tracking-wider pl-1">Previsão Detalhada</h3>
-                
-                <table class="w-full text-sm text-left border-collapse" id="tabelaClima">
-                    <thead class="text-[10px] text-slate-400 uppercase sticky top-0 bg-slate-900/90 backdrop-blur-sm z-20">
-                        <tr>
-                            <th class="py-2 px-1 font-medium">Hora</th>
-                            <th class="py-2 px-1 font-medium text-center">Céu</th>
-                            <th class="py-2 px-1 font-medium">Temp</th>
-                            <th class="py-2 px-1 font-medium text-center">Chuva</th>
-                            <th class="py-2 px-1 font-medium text-right">Vento</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5 text-sm">
-                        </tbody>
-                </table>
+            <button id="btnToggleClima" class="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-all duration-300 py-4 group border-b border-slate-800 mb-2">
+                <span>Previsão Horária</span>
+                <div class="bg-slate-800 group-hover:bg-blue-600 rounded-full p-1 transition-colors">
+                    <svg id="setaToggle" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300 group-hover:text-white transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+            </button>
+
+            <div id="containerTabela" class="flex-1 overflow-hidden transition-all duration-500 ease-in-out max-h-0 opacity-0">
+                <div class="pt-2 pb-4 pr-2 h-full overflow-y-auto custom-scrollbar">
+                    <table class="w-full text-sm text-left border-collapse" id="tabelaClima">
+                        <thead class="text-[10px] text-slate-500 uppercase sticky top-0 bg-[#0f172a] z-20 font-bold tracking-wider">
+                            <tr><th class="py-3 px-2">Hora</th><th class="py-3 px-2 text-center">Céu</th><th class="py-3 px-2 font-bold text-white">Temp</th><th class="py-3 px-2 text-center">Chuva</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/50 text-xs font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
             </div>
+            <div class="mt-auto pt-6 text-center"><p class="text-[10px] text-slate-600">Powered by Neural Stylist AI</p></div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative overflow-y-auto">
-        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-8 py-4 flex justify-between items-center shadow-sm">
-            <div class="font-bold text-xl tracking-tight text-slate-800">
-                Wardrobe<span class="text-blue-600">AI</span> ✨
+    <main class="flex-1 flex flex-col relative overflow-y-auto bg-[#0b1121]">
+        <header class="bg-[#0f172a]/70 backdrop-blur-md sticky top-0 z-20 px-8 py-5 flex justify-between items-center border-b border-slate-800/50">
+            <div class="font-bold text-xl tracking-tight text-white">
+                Wardrobe<span class="text-blue-500">IA</span> 
             </div>
-            <nav class="flex gap-2">
-                <a href="index.html" class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 rounded-full transition">Home</a>
-                <a href="cadastro.html" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition">Cadastrar Roupa</a>
+            <nav class="flex gap-4">
+                <a href="index.html" class="px-4 py-2 text-xs font-bold text-blue-400 bg-blue-500/10 rounded-full border border-blue-500/20 transition">Home</a>
+                <a href="cadastro.html" class="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition">Cadastrar Roupa</a>
             </nav>
         </header>
 
-        <div class="flex-1 flex items-center justify-center p-8 bg-slate-50">
-            <div class="w-full max-w-4xl text-center animate-fade-in-up">
-                <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Seu Personal Stylist</h1>
-                <p class="text-lg text-slate-500 mb-10">IA analisando o clima e seu estilo.</p>
+        <div class="flex-1 flex items-center justify-center p-8 relative">
+            <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-                <div class="bg-white p-2 rounded-full shadow-lg border border-slate-200 inline-flex items-center gap-2 mb-12">
-                    <div class="pl-4 pr-2 border-r border-slate-200">
-                        <select id="generoSelect" class="bg-transparent font-semibold text-slate-700 outline-none cursor-pointer">
+            <div class="w-full max-w-6xl text-center animate-fade-in-up relative z-10">
+                <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-lg">
+                    Seu Estilista <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Inteligente</span>
+                </h1>
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">A IA analisa o clima e seleciona o look perfeito do seu guarda-roupa.</p>
+
+                <div class="bg-slate-800/40 backdrop-blur-xl border border-white/10 p-2 rounded-[2rem] shadow-2xl flex flex-col md:flex-row items-center gap-2 mb-14 max-w-4xl mx-auto">
+                    
+                    <div class="relative w-full md:w-auto flex-1 group">
+                        <div class="absolute left-6 top-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest pointer-events-none group-hover:text-blue-400 transition-colors">Gênero</div>
+                        <select id="generoSelect" class="w-full appearance-none bg-slate-900/50 hover:bg-slate-900 border border-transparent hover:border-slate-700 text-white font-bold text-sm pt-8 pb-3 px-6 rounded-[1.5rem] cursor-pointer outline-none focus:ring-2 focus:ring-blue-500/50 transition-all h-[64px]">
                             <option value="male">Masculino</option>
                             <option value="female">Feminino</option>
                             <option value="unisex">Unissex</option>
                         </select>
+                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-blue-400 transition-colors mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
                     </div>
-                    <button id="btnConsultar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-md transition transform hover:scale-105">
-                        Gerar Look
+
+                    <div class="hidden md:block w-px h-10 bg-white/10 mx-2"></div>
+
+                    <div class="relative w-full md:w-auto flex-[1.5] group">
+                        <div class="absolute left-6 top-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest pointer-events-none group-hover:text-purple-400 transition-colors">Estilo</div>
+                        <select id="estiloSelect" class="w-full appearance-none bg-slate-900/50 hover:bg-slate-900 border border-transparent hover:border-slate-700 text-white font-bold text-sm pt-8 pb-3 px-6 rounded-[1.5rem] cursor-pointer outline-none focus:ring-2 focus:ring-purple-500/50 transition-all h-[64px]">
+                            <option value="Casual">Casual</option>
+                            <option value="Formal">Formal</option>
+                            <option value="Esportivo">Esportivo</option>
+                            <option value="Inverno">Inverno</option>
+                            <option value="Verao">Verão</option>
+                        </select>
+                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-purple-400 transition-colors mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
+
+                    <button id="btnConsultar" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold h-[64px] px-10 rounded-[1.5rem] shadow-lg shadow-blue-900/50 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group border border-blue-400/20">
+                        <span>GERAR LOOK</span>
+                        <div class="bg-white/20 rounded-full p-1 group-hover:rotate-180 transition-transform duration-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                        </div>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
-                        <div class="w-12 h-12 bg-blue-50 text-2xl flex items-center justify-center rounded-2xl mb-4">🧢</div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Cabeça</p>
-                        <h3 id="itemCabeca" class="text-lg font-bold text-slate-800">-</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-5 rounded-[2rem] border border-white/5 hover:border-blue-500/30 hover:bg-slate-800 transition-all duration-300 group shadow-2xl h-[450px] flex flex-col relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-transparent"></div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Parte Superior</p>
+                        <div class="flex-1 bg-[#0b1121] rounded-2xl overflow-hidden flex items-center justify-center relative border border-white/5 group-hover:border-blue-500/20 transition-colors">
+                            <img id="imgCima" src="" class="w-full h-full object-cover group-hover:scale-105 transition duration-700 opacity-0 z-10">
+                            <span class="absolute text-6xl opacity-10 grayscale">👕</span>
+                        </div>
+                        <h3 id="itemCima" class="text-lg font-bold text-white mt-5 text-center group-hover:text-blue-400 transition-colors">-</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
-                        <div class="w-12 h-12 bg-indigo-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👕</div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Tronco</p>
-                        <h3 id="itemTronco" class="text-lg font-bold text-slate-800">-</h3>
+
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-5 rounded-[2rem] border border-white/5 hover:border-purple-500/30 hover:bg-slate-800 transition-all duration-300 group shadow-2xl h-[450px] flex flex-col relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-transparent"></div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Parte Inferior</p>
+                        <div class="flex-1 bg-[#0b1121] rounded-2xl overflow-hidden flex items-center justify-center relative border border-white/5 group-hover:border-purple-500/20 transition-colors">
+                            <img id="imgBaixo" src="" class="w-full h-full object-cover group-hover:scale-105 transition duration-700 opacity-0 z-10">
+                            <span class="absolute text-6xl opacity-10 grayscale">👖</span>
+                        </div>
+                        <h3 id="itemBaixo" class="text-lg font-bold text-white mt-5 text-center group-hover:text-purple-400 transition-colors">-</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
-                        <div class="w-12 h-12 bg-purple-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👖</div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Pernas</p>
-                        <h3 id="itemPernas" class="text-lg font-bold text-slate-800">-</h3>
+
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-5 rounded-[2rem] border border-white/5 hover:border-emerald-500/30 hover:bg-slate-800 transition-all duration-300 group shadow-2xl h-[450px] flex flex-col relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-transparent"></div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Terceira Peça</p>
+                        <div class="flex-1 bg-[#0b1121] rounded-2xl overflow-hidden flex items-center justify-center relative border border-white/5 group-hover:border-emerald-500/20 transition-colors">
+                            <img id="imgCasaco" src="" class="w-full h-full object-cover group-hover:scale-105 transition duration-700 opacity-0 z-10">
+                            <span class="absolute text-6xl opacity-10 grayscale">🧥</span>
+                        </div>
+                        <h3 id="itemCasaco" class="text-lg font-bold text-white mt-5 text-center group-hover:text-emerald-400 transition-colors">-</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition group">
-                        <div class="w-12 h-12 bg-emerald-50 text-2xl flex items-center justify-center rounded-2xl mb-4">👟</div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Pés</p>
-                        <h3 id="itemPes" class="text-lg font-bold text-slate-800">-</h3>
-                    </div>
+
                 </div>
-                <p id="infoClimaTexto" class="mt-8 text-sm text-slate-400 font-medium"></p>
+                <p id="infoClimaTexto" class="mt-12 text-xs font-bold text-slate-500 tracking-widest uppercase"></p>
             </div>
         </div>
     </main>
