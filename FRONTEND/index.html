@@ -26,10 +26,14 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        /* ESCONDER BARRA DE ROLAGEM, MAS MANTER O SCROLL */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
@@ -62,10 +66,11 @@
                 </div>
                 <div class="mt-4 flex justify-between px-4 text-xs text-slate-400 border-t border-white/10 pt-4">
                      <span id="detalheUmid">💧 --%</span>
-                     <span id="detalheChuvaHero">☔ --%</span> </div>
+                     <span id="detalheChuvaHero">☔ --%</span>
+                </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-1">
+            <div class="flex-1 overflow-y-auto pr-1 no-scrollbar">
                 <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-3 tracking-wider pl-1">Previsão Detalhada</h3>
                 
                 <table class="w-full text-sm text-left border-collapse" id="tabelaClima">
@@ -74,7 +79,9 @@
                             <th class="py-2 px-1 font-medium">Hora</th>
                             <th class="py-2 px-1 font-medium text-center">Céu</th>
                             <th class="py-2 px-1 font-medium">Temp</th>
-                            <th class="py-2 px-1 font-medium text-center">Chuva</th> <th class="py-2 px-1 font-medium text-right">Vento</th> </tr>
+                            <th class="py-2 px-1 font-medium text-center">Chuva</th>
+                            <th class="py-2 px-1 font-medium text-right">Vento</th>
+                        </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5 text-sm">
                         </tbody>

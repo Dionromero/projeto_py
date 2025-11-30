@@ -2,13 +2,11 @@ const btn = document.getElementById("btnConsultar");
 const generoSelect = document.getElementById("generoSelect");
 const infoClimaTexto = document.getElementById("infoClimaTexto");
 
-// Elementos do Look
 const elCabeca = document.getElementById("itemCabeca");
 const elTronco = document.getElementById("itemTronco");
 const elPernas = document.getElementById("itemPernas");
 const elPes = document.getElementById("itemPes");
 
-// Sidebar Elements
 const tempDestaque = document.getElementById("tempDestaque");
 const condicaoDestaque = document.getElementById("condicaoDestaque");
 const detalheUmid = document.getElementById("detalheUmid");
@@ -18,7 +16,6 @@ const dataHoje = document.getElementById("dataHoje");
 function obterIconeClima(condicao) {
     if (!condicao) return "☁️";
     const c = condicao.toLowerCase();
-    
     if (c.includes("sol") || c.includes("limpo")) return "☀️";
     if (c.includes("chuva") || c.includes("garoa")) return "🌧️";
     if (c.includes("trovoada") || c.includes("raio")) return "⛈️";
@@ -34,66 +31,67 @@ async function carregarClima() {
         if (!response.ok) throw new Error("Erro API Clima");
         const dados = await response.json();
         
-        // 1. Data e Destaque
         const hoje = new Date();
         if(dataHoje) dataHoje.innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' });
 
         if(dados.length > 0) {
-            const atual = dados[0]; 
+            // Pega o horário atual (mais próximo)
+            const horaAtual = new Date().getHours();
+            // Tenta achar o dado da hora atual na lista, senão pega o primeiro
+            const atual = dados.find(d => new Date(d.timestamp).getHours() === horaAtual) || dados[0];
+
             if(tempDestaque) tempDestaque.innerText = Math.round(atual.temperatura);
             if(condicaoDestaque) condicaoDestaque.innerText = atual.condicao;
-            
-            // Detalhes Hero
             if(detalheUmid) detalheUmid.innerText = `💧 ${atual.umidade}%`;
-            // Mostra chuva no destaque também
-            if(detalheChuvaHero) detalheChuvaHero.innerText = `☔ ${atual.chance_of_rain || 0}%`;
+            if(detalheChuvaHero) detalheChuvaHero.innerText = `☔ ${atual.chance_of_rain}%`;
         }
 
-        // 2. Tabela Detalhada com TUDO
         const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
         tabela.innerHTML = "";
         
         dados.forEach((item, index) => {
             const horaNum = new Date(item.timestamp).getHours();
             
-            // Mostra a cada 2 horas
-            if (index < 18 && horaNum % 2 === 0) { 
+            // Mostra a cada 2 horas para caber na tela
+            if (index < 24 && horaNum % 2 === 0) { 
                 const row = tabela.insertRow();
-                row.className = "hover:bg-white/10 transition duration-200 group";
+                row.className = "hover:bg-white/10 transition duration-200 group border-b border-white/5";
 
-                // 1. Hora
+                // Hora
                 const cHora = row.insertCell(0);
                 cHora.className = "py-3 px-1 text-slate-400 font-mono text-[10px]";
                 cHora.innerText = `${String(horaNum).padStart(2, '0')}:00`;
 
-                // 2. Ícone
+                // Ícone
                 const cIcon = row.insertCell(1);
                 cIcon.className = "py-3 px-1 text-center text-base";
                 cIcon.innerText = obterIconeClima(item.condicao);
 
-                // 3. Temperatura
+                // Temp
                 const cTemp = row.insertCell(2);
                 cTemp.className = "py-3 px-1 font-bold text-white text-xs";
                 cTemp.innerText = `${Math.round(item.temperatura)}°`;
 
-                // 4. Chuva (Mostra SEMPRE)
+                // Chuva (Ajustado)
                 const cChuva = row.insertCell(3);
-                const probChuva = item.chance_of_rain || 0;
+                // Garante que é número
+                const probChuva = Number(item.chance_of_rain);
+                
                 cChuva.className = "py-3 px-1 text-center text-xs";
                 
                 if (probChuva > 0) {
-                    // Azul e negrito se tiver chance
+                    // Se for maior que 0, mostra azul
                     cChuva.innerHTML = `<span class="text-blue-400 font-bold">${probChuva}%</span>`;
                 } else {
-                    // Cinza se for zero
-                    cChuva.innerHTML = `<span class="text-slate-600 opacity-50">0%</span>`;
+                    // Se for 0 cravado
+                    cChuva.innerHTML = `<span class="text-slate-600 opacity-40">0%</span>`;
                 }
 
-                // 5. Vento (NOVO)
+                // Vento
                 const cVento = row.insertCell(4);
                 const velVento = Math.round(item.vento_kph || 0);
                 cVento.className = "py-3 px-1 text-right text-xs text-slate-400";
-                cVento.innerText = `${velVento} km`; // Abreviei km/h para km para caber melhor
+                cVento.innerText = `${velVento} km`;
             }
         });
 
