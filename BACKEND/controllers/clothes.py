@@ -1,10 +1,12 @@
+
 from flask import Blueprint, request, jsonify
+import sys
+import os
+# Adiciona o diretório pai ao caminho do sistema para encontrar 'clima_api' e 'motor_recomendacao'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 clothes_bp = Blueprint('clothes', __name__)
 
-# Simulação de banco de dados em memória (para teste)
-# Quando você reiniciar o servidor, isso apaga. 
-# Futuramente, trocaremos isso pelo SQL/Banco de dados.
 roupas_db = [] 
 
 @clothes_bp.route('/', methods=['POST'])
@@ -20,7 +22,7 @@ def create_cloth():
     
     roupas_db.append(nova_roupa)
     
-    print(f"👕 Nova roupa cadastrada: {nova_roupa['name']} | Tags: {nova_roupa['tags']}")
+    print(f" Nova roupa cadastrada: {nova_roupa['name']} | Tags: {nova_roupa['tags']}")
     
     return jsonify({"msg": "Roupa cadastrada com sucesso!", "dados": nova_roupa}), 201
 

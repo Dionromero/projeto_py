@@ -42,9 +42,10 @@ function renderizarTags() {
     // Recria as tags baseadas no Array
     listaDeTags.slice().reverse().forEach((tagTexto, index) => {
         const realIndex = listaDeTags.length - 1 - index;
-
+        
         const div = document.createElement('div');
         div.className = 'tag';
+        // O &times; cria um 'x' de fechar padrão e elegante
         div.innerHTML = `
             ${tagTexto}
             <span onclick="removerTag(${realIndex})">&times;</span>
@@ -81,17 +82,17 @@ async function enviarCadastro() {
         });
 
         if (resposta.ok) {
-            alert("✅ Roupa cadastrada com sucesso!");
+            alert("Roupa cadastrada com sucesso!");
             // Limpar formulário
             document.getElementById('nomeRoupa').value = "";
             document.getElementById('imgRoupa').value = "";
             listaDeTags = [];
             renderizarTags();
         } else {
-            alert("❌ Erro no servidor ao salvar.");
+            alert("Erro ao cadastrar roupa.");
         }
-    } catch (error) {
-        console.error("Erro:", error);
-        alert("❌ Falha ao conectar com o Backend.");
+    } catch (erro) {
+        console.error("Erro:", erro);
+        alert("Erro de conexão com o servidor.");
     }
 }

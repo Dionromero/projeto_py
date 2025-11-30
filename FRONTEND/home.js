@@ -16,7 +16,7 @@ async function carregarClima() {
         // Preenche a tabela
         dados.forEach(item => {
             const hora = new Date(item.timestamp).getHours();
-            // Mostra a cada 5 horas ou ajusta conforme necessidade
+            // Mostra a cada 4 horas para não lotar a tabela
             if (hora % 4 === 0) {
                 const row = tabela.insertRow();
                 row.insertCell(0).innerText = `${String(hora).padStart(2, '0')}:00`;
@@ -28,13 +28,13 @@ async function carregarClima() {
     } catch (erro) {
         console.error("Erro clima:", erro);
         const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
-        tabela.innerHTML = `<tr><td colspan="4">❌ Erro de conexão com o Backend</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="4">Não foi possível carregar o clima.</td></tr>`;
     }
 }
 
-// --- Evento do Botão de Recomendação ---
+// --- Função Principal: Recomendação ---
 btn.addEventListener("click", async () => {
-    texto.innerText = "⏳ Consultando IA...";
+    texto.innerText = "Consultando inteligência artificial...";
     if(imagemRoupa) imagemRoupa.style.display = "none";
 
     try {
@@ -44,15 +44,14 @@ btn.addEventListener("click", async () => {
         // 1. Atualiza o texto
         texto.innerHTML = `Recomendação: <strong>${data.nome_roupa}</strong>`;
 
-        // 2. Atualiza a IMAGEM (Correção do caminho)
+        // 2. Atualiza a IMAGEM
         if (data.imagem_path && imagemRoupa) {
             const BASE_URL = "http://127.0.0.1:5000/";
             
-            // Se já for um link completo (http...), usa ele. Se não, concatena.
+            // Tratamento da URL da imagem
             if (data.imagem_path.startsWith('http')) {
                 imagemRoupa.src = data.imagem_path;
             } else {
-                // Remove barra inicial se houver para evitar duplicidade
                 const caminhoLimpo = data.imagem_path.startsWith('/') ? data.imagem_path.substring(1) : data.imagem_path;
                 imagemRoupa.src = BASE_URL + caminhoLimpo;
             }
@@ -62,15 +61,14 @@ btn.addEventListener("click", async () => {
             texto.innerHTML += "<br><small>(Imagem de exemplo não disponível)</small>";
         }
 
-        // Atualiza o clima também
+        // Atualiza o clima também ao clicar
         await carregarClima();
 
-    } catch (erro) {
-        texto.innerText = "❌ Erro ao consultar servidor.";
-        console.error("Erro recomendação:", erro);
+    } catch (err) {
+        console.error(err);
+        texto.innerText = "Erro ao conectar com o servidor.";
     }
 });
 
-// Inicializa o clima ao abrir a página
-carregarClima();
-setInterval(carregarClima, 5 * 60 * 1000);
+// Carrega o clima ao abrir a página
+window.onload = carregarClima;

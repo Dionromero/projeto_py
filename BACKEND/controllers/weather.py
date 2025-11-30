@@ -1,5 +1,9 @@
 from flask import Blueprint, jsonify
 from clima_api import obter_dados_clima, processar_dados_para_tabela
+import sys
+import os
+# Adiciona o diretório pai ao caminho do sistema para encontrar 'clima_api' e 'motor_recomendacao'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 weather_bp = Blueprint('weather', __name__)
 
