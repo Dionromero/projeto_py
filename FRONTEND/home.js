@@ -8,10 +8,25 @@ const elTronco = document.getElementById("itemTronco");
 const elPernas = document.getElementById("itemPernas");
 const elPes = document.getElementById("itemPes");
 
-// Elementos da Sidebar
+// Sidebar Elements
 const tempDestaque = document.getElementById("tempDestaque");
 const condicaoDestaque = document.getElementById("condicaoDestaque");
-const hojeMaxMin = document.getElementById("hojeMaxMin");
+const detalheUmid = document.getElementById("detalheUmid");
+const detalheChuvaHero = document.getElementById("detalheChuvaHero");
+const dataHoje = document.getElementById("dataHoje");
+
+function obterIconeClima(condicao) {
+    if (!condicao) return "☁️";
+    const c = condicao.toLowerCase();
+    
+    if (c.includes("sol") || c.includes("limpo")) return "☀️";
+    if (c.includes("chuva") || c.includes("garoa")) return "🌧️";
+    if (c.includes("trovoada") || c.includes("raio")) return "⛈️";
+    if (c.includes("nublado") || c.includes("nuvens")) return "☁️";
+    if (c.includes("parcial")) return "⛅";
+    if (c.includes("neblina")) return "🌫️";
+    return "🌥️"; 
+}
 
 async function carregarClima() {
     try {
@@ -19,56 +34,66 @@ async function carregarClima() {
         if (!response.ok) throw new Error("Erro API Clima");
         const dados = await response.json();
         
-        // 1. Preenche o Destaque (Hero)
+        // 1. Data e Destaque
+        const hoje = new Date();
+        if(dataHoje) dataHoje.innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' });
+
         if(dados.length > 0) {
             const atual = dados[0]; 
             if(tempDestaque) tempDestaque.innerText = Math.round(atual.temperatura);
             if(condicaoDestaque) condicaoDestaque.innerText = atual.condicao;
             
-            // Simulação de Max/Min (Se a API mandar no futuro, ajuste aqui)
-            if(hojeMaxMin) hojeMaxMin.innerText = `Umidade: ${atual.umidade}% | Vento: ${atual.vento_kph.toFixed(0)} km/h`;
+            // Detalhes Hero
+            if(detalheUmid) detalheUmid.innerText = `💧 ${atual.umidade}%`;
+            // Mostra chuva no destaque também
+            if(detalheChuvaHero) detalheChuvaHero.innerText = `☔ ${atual.chance_of_rain || 0}%`;
         }
 
-        // 2. Preenche a Tabela Completa
+        // 2. Tabela Detalhada com TUDO
         const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
         tabela.innerHTML = "";
         
         dados.forEach((item, index) => {
-            const hora = new Date(item.timestamp).getHours();
+            const horaNum = new Date(item.timestamp).getHours();
             
-            // Mostra a cada 3 horas para não poluir
-            if (index < 16 && hora % 2 === 0) { 
+            // Mostra a cada 2 horas
+            if (index < 18 && horaNum % 2 === 0) { 
                 const row = tabela.insertRow();
+                row.className = "hover:bg-white/10 transition duration-200 group";
+
+                // 1. Hora
+                const cHora = row.insertCell(0);
+                cHora.className = "py-3 px-1 text-slate-400 font-mono text-[10px]";
+                cHora.innerText = `${String(horaNum).padStart(2, '0')}:00`;
+
+                // 2. Ícone
+                const cIcon = row.insertCell(1);
+                cIcon.className = "py-3 px-1 text-center text-base";
+                cIcon.innerText = obterIconeClima(item.condicao);
+
+                // 3. Temperatura
+                const cTemp = row.insertCell(2);
+                cTemp.className = "py-3 px-1 font-bold text-white text-xs";
+                cTemp.innerText = `${Math.round(item.temperatura)}°`;
+
+                // 4. Chuva (Mostra SEMPRE)
+                const cChuva = row.insertCell(3);
+                const probChuva = item.chance_of_rain || 0;
+                cChuva.className = "py-3 px-1 text-center text-xs";
                 
-                // Estilo das células (Tailwind classes aplicadas via JS ou herdadas da TR)
-                row.className = "hover:bg-slate-800 transition duration-200 border-b border-slate-800/50 last:border-0";
+                if (probChuva > 0) {
+                    // Azul e negrito se tiver chance
+                    cChuva.innerHTML = `<span class="text-blue-400 font-bold">${probChuva}%</span>`;
+                } else {
+                    // Cinza se for zero
+                    cChuva.innerHTML = `<span class="text-slate-600 opacity-50">0%</span>`;
+                }
 
-                // Hora
-                const c1 = row.insertCell(0);
-                c1.className = "py-3 px-2 font-bold text-slate-300";
-                c1.innerText = `${String(hora).padStart(2, '0')}:00`;
-
-                // Temperatura
-                const c2 = row.insertCell(1);
-                c2.className = "py-3 px-2 font-medium text-white";
-                c2.innerText = `${Math.round(item.temperatura)}°`;
-
-                // Chuva (Se não tiver dados, assume 0)
-                const c3 = row.insertCell(2);
-                const chanceChuva = item.chance_of_rain || 0;
-                c3.className = `py-3 px-2 text-xs ${chanceChuva > 30 ? 'text-blue-400 font-bold' : 'text-slate-500'}`;
-                c3.innerText = `${chanceChuva}%`;
-
-                // Umidade
-                const c4 = row.insertCell(3);
-                c4.className = "py-3 px-2 text-xs text-slate-400";
-                c4.innerText = `${item.umidade}%`;
-
-                // Vento (Adicionei no backend ou pego do JSON se disponivel)
-                const c5 = row.insertCell(4);
-                c5.className = "py-3 px-2 text-xs text-slate-400";
-                const vento = item.vento_kph || item.wind_kph || 0; // Tenta pegar vento
-                c5.innerText = `${Math.round(vento)}km`;
+                // 5. Vento (NOVO)
+                const cVento = row.insertCell(4);
+                const velVento = Math.round(item.vento_kph || 0);
+                cVento.className = "py-3 px-1 text-right text-xs text-slate-400";
+                cVento.innerText = `${velVento} km`; // Abreviei km/h para km para caber melhor
             }
         });
 
@@ -80,33 +105,31 @@ async function carregarClima() {
 
 btn.addEventListener("click", async () => {
     const genero = generoSelect.value;
-    const textoOriginal = btn.innerHTML;
+    const originalText = btn.innerHTML;
     
-    // Animação simples no botão
-    btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Gerando...`;
+    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Gerando...`;
     btn.disabled = true;
 
     try {
         const resp = await fetch(`http://127.0.0.1:5000/recomendar?genero=${genero}&local=Curitiba`);
         const data = await resp.json();
 
-        // Atualiza UI com fade in
-        const atualizar = (el, texto) => {
+        const updateField = (el, text) => {
             el.style.opacity = 0;
             setTimeout(() => {
-                el.innerText = texto;
+                el.innerText = text;
                 el.style.opacity = 1;
             }, 200);
         };
 
-        atualizar(elCabeca, data.look.cabeca);
+        updateField(elCabeca, data.look.cabeca);
         
         let troncoTexto = data.look.tronco;
         if (data.look.casaco) troncoTexto = `${data.look.casaco} + ${data.look.tronco}`;
-        atualizar(elTronco, troncoTexto);
+        updateField(elTronco, troncoTexto);
 
-        atualizar(elPernas, data.look.pernas);
-        atualizar(elPes, data.look.pes);
+        updateField(elPernas, data.look.pernas);
+        updateField(elPes, data.look.pes);
 
         infoClimaTexto.innerText = `Look ideal para ${data.temperatura}°C (${data.categoria_clima})`;
         
@@ -116,7 +139,7 @@ btn.addEventListener("click", async () => {
         console.error(err);
         alert("Erro ao conectar.");
     } finally {
-        btn.innerHTML = textoOriginal;
+        btn.innerHTML = originalText;
         btn.disabled = false;
     }
 });
