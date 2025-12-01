@@ -2,7 +2,9 @@ import requests
 import pandas as pd
 import numpy as np
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     raise ValueError("API_KEY não encontrada nas variáveis de ambiente")
