@@ -4,7 +4,7 @@ const tagContainer = document.getElementById('tagContainer');
 // Array para armazenar as tags
 let listaDeTags = [];
 
-// Foca no input ao clicar na área cinza
+// Foca no input ao clicar na área
 tagContainer.addEventListener('click', (e) => {
     if(e.target === tagContainer) {
         tagInput.focus();
@@ -29,7 +29,7 @@ tagInput.addEventListener('blur', function() {
 });
 
 function processarInput() {
-    const valor = tagInput.value.trim().replace(',', ''); // Remove vírgula se tiver
+    const valor = tagInput.value.trim().replace(',', '');
     if (valor !== "" && !listaDeTags.includes(valor)) {
         listaDeTags.push(valor);
         renderizarTags();
@@ -43,26 +43,26 @@ function removerTag(indice) {
 }
 
 function renderizarTags() {
-    // Limpa apenas as tags visuais (mantém o input)
+    // Limpa apenas as tags visuais
     const tagsAtuais = document.querySelectorAll('.tag-badge');
     tagsAtuais.forEach(el => el.remove());
 
     // Recria as tags
     listaDeTags.forEach((tagTexto, index) => {
         const div = document.createElement('div');
-        // Estilo da Tag (Azul bonito)
-        div.className = 'tag-badge bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-2 select-none';
         
-        // Texto da Tag
+        // --- ESTILO DARK MODE PARA TAGS ---
+        // bg-blue-600: fundo azul forte
+        // text-white: texto branco
+        div.className = 'tag-badge bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-2 select-none shadow-md shadow-blue-900/20';
+        
         const spanTexto = document.createElement('span');
         spanTexto.innerText = tagTexto;
         
-        // Botão de Fechar (X)
         const spanClose = document.createElement('span');
         spanClose.innerHTML = '&times;';
-        spanClose.className = 'cursor-pointer hover:text-blue-900 text-lg leading-none';
+        spanClose.className = 'cursor-pointer hover:text-blue-200 text-lg leading-none ml-1';
         
-        // Evento de remover (Mais seguro que onclick no HTML)
         spanClose.onclick = function() {
             removerTag(index);
         };
@@ -77,8 +77,7 @@ function renderizarTags() {
 
 // ENVIO PARA O BACKEND
 async function enviarCadastro() {
-    // Garante que a tag pendente seja adicionada antes de enviar
-    processarInput();
+    processarInput(); // Salva o que estiver pendente
 
     const nome = document.getElementById('nomeRoupa').value;
     const imagem = document.getElementById('imgRoupa').value;
@@ -104,7 +103,7 @@ async function enviarCadastro() {
         });
 
         if (resposta.ok) {
-            alert("Roupa salva com sucesso!");
+            alert("✨ Roupa cadastrada com sucesso!");
             // Limpar tudo
             document.getElementById('nomeRoupa').value = "";
             document.getElementById('imgRoupa').value = "";

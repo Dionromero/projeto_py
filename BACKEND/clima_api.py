@@ -1,8 +1,13 @@
 import requests
 import pandas as pd
 import numpy as np
+import os
+from dotenv import load_dotenv
 
-API_KEY = "8edf5a3557214b83a8d24412250109"
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise ValueError("API_KEY não encontrada nas variáveis de ambiente")
 
 def obter_dados_clima(local="Curitiba"):
     url = "http://api.weatherapi.com/v1/forecast.json"
