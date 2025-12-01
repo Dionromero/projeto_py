@@ -21,7 +21,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; } 
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
         /* Corrige fundo das opções no Windows */
-        select option { background-color: #1e293b; color: white; }
+        select option { background-color: #2a384e; color: white; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -74,7 +74,7 @@
                 <div class="pt-2 pb-4 pr-2 h-full overflow-y-auto custom-scrollbar">
                     <table class="w-full text-sm text-left border-collapse" id="tabelaClima">
                         <thead class="text-[10px] text-slate-500 uppercase sticky top-0 bg-[#0f172a] z-20 font-bold tracking-wider">
-                            <tr><th class="py-3 px-2">Hora</th><th class="py-3 px-2 text-center">Céu</th><th class="py-3 px-2 font-bold text-white">Temp</th><th class="py-3 px-2 text-center">Chuva</th></tr>
+                            <tr><th class="py-3 px-2">Hora</th><th class="py-3 px-2 text-center">Céu</th><th class="py-3 px-2 font-bold text-white text-right">Temp</th><th class="py-3 px-2 text-center">Chuva</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/50 text-xs font-medium text-slate-300"></tbody>
                     </table>
@@ -102,7 +102,7 @@
                 <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-lg">
                     Seu Estilista <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Inteligente</span>
                 </h1>
-                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">A IA analisa o clima e seleciona o look perfeito do seu guarda-roupa.</p>
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">A IA analisa o clima e seleciona o SWAG perfeito do seu guarda-roupa.</p>
 
                 <div class="bg-slate-800/40 backdrop-blur-xl border border-white/10 p-2 rounded-[2rem] shadow-2xl flex flex-col md:flex-row items-center gap-2 mb-14 max-w-4xl mx-auto">
                     
@@ -135,7 +135,7 @@
                     </div>
 
                     <button id="btnConsultar" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold h-[64px] px-10 rounded-[1.5rem] shadow-lg shadow-blue-900/50 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 group border border-blue-400/20">
-                        <span>GERAR LOOK</span>
+                        <span>GERAR SWAG</span>
                         <div class="bg-white/20 rounded-full p-1 group-hover:rotate-180 transition-transform duration-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
                         </div>

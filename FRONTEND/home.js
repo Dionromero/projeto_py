@@ -11,18 +11,19 @@ const setaToggle = document.getElementById("setaToggle");
 // Lógica de Abrir/Fechar Tabela
 if(btnToggle && containerTabela) {
     btnToggle.addEventListener("click", () => {
+        // Verifica se está aberto
         const isClosed = containerTabela.classList.contains("max-h-0");
 
         if (isClosed) {
             // ABRIR
             containerTabela.classList.remove("max-h-0", "opacity-0");
-            containerTabela.classList.add("max-h-[400px]", "opacity-100");
-            setaToggle.classList.add("rotate-180");
+            containerTabela.classList.add("max-h-[400px]", "opacity-100"); // Altura máx suficiente
+            setaToggle.classList.add("rotate-180"); // Gira a seta
         } else {
             // FECHAR
             containerTabela.classList.remove("max-h-[400px]", "opacity-100");
             containerTabela.classList.add("max-h-0", "opacity-0");
-            setaToggle.classList.remove("rotate-180");
+            setaToggle.classList.remove("rotate-180"); // Volta a seta
         }
     });
 }
@@ -33,8 +34,7 @@ const parts = {
     casaco: { txt: document.getElementById("itemCasaco"), img: document.getElementById("imgCasaco") }
 };
 
-// SUA URL DO RENDER — CORRETÍSSIMA
-const BASE_URL = "https://virtualwardrobe-pzu3.onrender.com";
+const BASE_URL = "http://127.0.0.1:5000"; 
 
 function obterIconeClima(textoCondicao) {
     if (!textoCondicao) return "☁️";
@@ -48,21 +48,22 @@ function obterIconeClima(textoCondicao) {
 
 async function carregarClima() {
     try {
-        // 🔥 AQUI — rota corrigida
-        const response = await fetch(`${BASE_URL}/clima`);
-
+        const response = await fetch(`${BASE_URL}/api/clima`); 
         if (!response.ok) return;
         const dados = await response.json();
         
+        // Data
         const hoje = new Date();
         const opcoesData = { day: 'numeric', month: 'short' };
         document.getElementById("dataHoje").innerText = hoje.toLocaleDateString('pt-BR', opcoesData).replace('.', '');
 
+        // Card Hero
         if(dados && dados.current) {
             document.getElementById("tempDestaque").innerText = Math.round(dados.current.temp_c);
             document.getElementById("condicaoDestaque").innerText = dados.current.condition.text;
             document.getElementById("detalheUmid").innerText = `${dados.current.humidity}%`;
-
+            
+            // Ícone Grande
             const iconHero = obterIconeClima(dados.current.condition.text);
             const iconEl = document.getElementById("iconDestaque");
             if(iconEl) iconEl.innerText = iconHero;
@@ -72,11 +73,12 @@ async function carregarClima() {
             document.getElementById("detalheChuvaHero").innerText = `${chuva}%`;
         }
 
+        // Tabela
         const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
         if(tabela && dados.forecast) {
             tabela.innerHTML = "";
             dados.forecast.forecastday[0].hour.forEach((item, index) => {
-                if (index % 3 === 0) { 
+                if (index % 3 === 0) { // A cada 3h para ficar mais compacto
                     const row = tabela.insertRow();
                     row.className = "hover:bg-white/5 transition-colors border-b border-slate-800/50";
                     
@@ -108,7 +110,6 @@ btn.addEventListener("click", async () => {
     btn.disabled = true;
 
     try {
-        // 🔥 AQUI — rota corrigida
         const resp = await fetch(`${BASE_URL}/recomendar?genero=${genero}&local=Curitiba&estilo=${estilo}`);
         const data = await resp.json();
 
