@@ -34,7 +34,9 @@ const parts = {
     casaco: { txt: document.getElementById("itemCasaco"), img: document.getElementById("imgCasaco") }
 };
 
-const BASE_URL = "http://127.0.0.1:5000"; 
+// --- ALTERAÇÃO PRINCIPAL AQUI ---
+// Apontando para o seu servidor no Render
+const BASE_URL = "https://wardobre-ipynb.onrender.com"; 
 
 function obterIconeClima(textoCondicao) {
     if (!textoCondicao) return "☁️";
@@ -55,7 +57,8 @@ async function carregarClima() {
         // Data
         const hoje = new Date();
         const opcoesData = { day: 'numeric', month: 'short' };
-        document.getElementById("dataHoje").innerText = hoje.toLocaleDateString('pt-BR', opcoesData).replace('.', '');
+        const elData = document.getElementById("dataHoje");
+        if(elData) elData.innerText = hoje.toLocaleDateString('pt-BR', opcoesData).replace('.', '');
 
         // Card Hero
         if(dados && dados.current) {
@@ -74,12 +77,13 @@ async function carregarClima() {
         }
 
         // Tabela
-        const tabela = document.getElementById("tabelaClima").getElementsByTagName("tbody")[0];
-        if(tabela && dados.forecast) {
-            tabela.innerHTML = "";
+        const tabelaEl = document.getElementById("tabelaClima");
+        if(tabelaEl && dados.forecast) {
+            const tabelaBody = tabelaEl.getElementsByTagName("tbody")[0];
+            tabelaBody.innerHTML = "";
             dados.forecast.forecastday[0].hour.forEach((item, index) => {
                 if (index % 3 === 0) { // A cada 3h para ficar mais compacto
-                    const row = tabela.insertRow();
+                    const row = tabelaBody.insertRow();
                     row.className = "hover:bg-white/5 transition-colors border-b border-slate-800/50";
                     
                     const hora = item.time.split(' ')[1];
@@ -94,7 +98,7 @@ async function carregarClima() {
                 }
             });
         }
-    } catch (e) { console.warn("Clima indisponível"); }
+    } catch (e) { console.warn("Clima indisponível ou servidor acordando..."); }
 }
 
 btn.addEventListener("click", async () => {
@@ -102,6 +106,7 @@ btn.addEventListener("click", async () => {
     const estilo = estiloSelect.value;
     const originalText = btn.innerHTML;
     
+    // Animação de Loading
     btn.innerHTML = `
         <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -113,6 +118,7 @@ btn.addEventListener("click", async () => {
         const resp = await fetch(`${BASE_URL}/recomendar?genero=${genero}&local=Curitiba&estilo=${estilo}`);
         const data = await resp.json();
 
+        // Função auxiliar para atualizar UI
         const updatePart = (partKey, textVal, imgUrl) => {
             const el = parts[partKey];
             if(!el) return;
@@ -120,12 +126,13 @@ btn.addEventListener("click", async () => {
             if(el.img) el.img.style.opacity = 0;
 
             setTimeout(() => {
-                if (!textVal || textVal === "-" || textVal === "Peça Única") {
-                    el.txt.innerText = textVal === "Peça Única" ? "(Peça Única)" : "—";
-                    if(textVal === "Peça Única") el.img.src = ""; else el.img.src = "https://placehold.co/1x1/ffffff/ffffff"; 
+                if (!textVal || textVal === "-" || textVal === "Peça Única" || textVal === "Nada") {
+                    el.txt.innerText = (textVal === "Peça Única") ? "(Peça Única)" : "—";
+                    if(el.img) el.img.src = "https://placehold.co/1x1/ffffff/ffffff"; // Imagem em branco/transparente
                 } else {
                     el.txt.innerText = textVal;
-                    if (imgUrl) {
+                    if (imgUrl && el.img) {
+                        // Verifica se a URL já é completa ou precisa concatenar
                         let src = imgUrl.startsWith('http') || imgUrl.startsWith('data') ? imgUrl : BASE_URL + imgUrl;
                         el.img.src = src;
                         el.img.onload = () => { el.img.style.opacity = 1; };
@@ -135,14 +142,27 @@ btn.addEventListener("click", async () => {
             }, 200);
         };
 
-        updatePart("cima", data.look.cima, data.imagens.cima);
-        updatePart("baixo", data.look.baixo, data.imagens.baixo);
-        updatePart("casaco", data.look.casaco, data.imagens.casaco);
+        // --- CORREÇÃO DE ESTRUTURA DE DADOS ---
+        // Se o backend retornar direto data.cima (como no seu Python), usa ele.
+        // Se retornar data.look.cima (estrutura antiga), usa o fallback.
+        const cimaVal = data.cima || (data.look ? data.look.cima : "-");
+        const baixoVal = data.baixo || (data.look ? data.look.baixo : "-");
+        const casacoVal = data.casaco || (data.look ? data.look.casaco : "-");
 
-        if(infoClimaTexto) infoClimaTexto.innerText = `Look ideal para ${data.temperatura}°C (${data.categoria_clima})`;
+        updatePart("cima", cimaVal, data.imagens?.cima);
+        updatePart("baixo", baixoVal, data.imagens?.baixo);
+        updatePart("casaco", casacoVal, data.imagens?.casaco);
+
+        if(infoClimaTexto) {
+            infoClimaTexto.innerText = `Look ideal para ${data.temperatura}°C (${data.categoria_clima})`;
+        }
+        
         await carregarClima();
 
-    } catch (err) { alert("Erro ao conectar."); } finally {
+    } catch (err) { 
+        console.error(err);
+        alert("O servidor pode estar 'dormindo'. Aguarde 30s e tente de novo!"); 
+    } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
