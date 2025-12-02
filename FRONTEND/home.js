@@ -34,8 +34,6 @@ const parts = {
     casaco: { txt: document.getElementById("itemCasaco"), img: document.getElementById("imgCasaco") }
 };
 
-// --- ALTERAÇÃO PRINCIPAL AQUI ---
-// Apontando para o seu servidor no Render
 const BASE_URL = "https://wardobre-ipynb.onrender.com"; 
 
 function obterIconeClima(textoCondicao) {
@@ -54,19 +52,17 @@ async function carregarClima() {
         if (!response.ok) return;
         const dados = await response.json();
         
-        // Data
         const hoje = new Date();
         const opcoesData = { day: 'numeric', month: 'short' };
         const elData = document.getElementById("dataHoje");
         if(elData) elData.innerText = hoje.toLocaleDateString('pt-BR', opcoesData).replace('.', '');
 
-        // Card Hero
+    
         if(dados && dados.current) {
             document.getElementById("tempDestaque").innerText = Math.round(dados.current.temp_c);
             document.getElementById("condicaoDestaque").innerText = dados.current.condition.text;
             document.getElementById("detalheUmid").innerText = `${dados.current.humidity}%`;
-            
-            // Ícone Grande
+             
             const iconHero = obterIconeClima(dados.current.condition.text);
             const iconEl = document.getElementById("iconDestaque");
             if(iconEl) iconEl.innerText = iconHero;
@@ -76,7 +72,7 @@ async function carregarClima() {
             document.getElementById("detalheChuvaHero").innerText = `${chuva}%`;
         }
 
-        // Tabela
+  
         const tabelaEl = document.getElementById("tabelaClima");
         if(tabelaEl && dados.forecast) {
             const tabelaBody = tabelaEl.getElementsByTagName("tbody")[0];
@@ -106,7 +102,7 @@ btn.addEventListener("click", async () => {
     const estilo = estiloSelect.value;
     const originalText = btn.innerHTML;
     
-    // Animação de Loading
+
     btn.innerHTML = `
         <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -118,7 +114,6 @@ btn.addEventListener("click", async () => {
         const resp = await fetch(`${BASE_URL}/recomendar?genero=${genero}&local=Curitiba&estilo=${estilo}`);
         const data = await resp.json();
 
-        // Função auxiliar para atualizar UI
         const updatePart = (partKey, textVal, imgUrl) => {
             const el = parts[partKey];
             if(!el) return;
@@ -141,10 +136,6 @@ btn.addEventListener("click", async () => {
                 el.txt.style.opacity = 1;
             }, 200);
         };
-
-        // --- CORREÇÃO DE ESTRUTURA DE DADOS ---
-        // Se o backend retornar direto data.cima (como no seu Python), usa ele.
-        // Se retornar data.look.cima (estrutura antiga), usa o fallback.
         const cimaVal = data.cima || (data.look ? data.look.cima : "-");
         const baixoVal = data.baixo || (data.look ? data.look.baixo : "-");
         const casacoVal = data.casaco || (data.look ? data.look.casaco : "-");
