@@ -9,3 +9,4 @@ gunicorn
 scikit-learn
 numpy
 huggingface-hub
+python-dotenv
