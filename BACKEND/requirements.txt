@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+flask
+flask-cors
+numpy
+pandas
+requests
+gunicorn
+python-dotenv
