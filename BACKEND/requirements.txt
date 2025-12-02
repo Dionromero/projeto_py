@@ -1,12 +1,10 @@
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==2.0.0+cpu
+torchvision==0.15.1+cpu
 flask
 flask-cors
-torch
-torchvision
-datasets
+numpy
 pandas
 requests
 gunicorn
-scikit-learn
-numpy
-huggingface-hub
 python-dotenv
